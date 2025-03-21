@@ -1,0 +1,183 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "name": "行田",
+      "email": "kouda@softbank.com",
+      "company": "ソフトバンク株式会社",
+      "role": "システム管理者",
+      "tenantCount": 2,
+      "status": "Active",
+      "lastLogin": "2025-03-21T09:58:54.051Z"
+    },
+    {
+      "id": 2,
+      "username": "manager1",
+      "name": "Jane Smith",
+      "email": "jane@example.com",
+      "company": "TechStart Ltd.",
+      "role": "Manager",
+      "tenantCount": 1,
+      "status": "Active",
+      "lastLogin": "2024-03-14T09:00:00Z"
+    },
+    {
+      "id": 3,
+      "username": "user1",
+      "name": "Bob Wilson",
+      "email": "bob@example.com",
+      "company": "Acme Inc.",
+      "role": "User",
+      "tenantCount": 1,
+      "status": "Inactive",
+      "lastLogin": "2024-03-13T15:00:00Z"
+    }
+  ],
+  "physicalWorkspaces": [
+    {
+      "id": 1,
+      "name": "Physical Workspace 1",
+      "createdDate": "2024-03-14T10:00:00Z",
+      "createdBy": "admin",
+      "status": "Active",
+      "logicalWorkspaces": [
+        {
+          "id": 1,
+          "name": "Development Workspace",
+          "belongingTenant": "Acme Corporation",
+          "createdDate": "2024-03-14T10:30:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 5,
+          "runningAppsCount": 2,
+          "status": "Active"
+        },
+        {
+          "id": 2,
+          "name": "Production Workspace",
+          "belongingTenant": "TechStart Solutions",
+          "createdDate": "2024-03-14T11:00:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 10,
+          "runningAppsCount": 5,
+          "status": "Active"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Physical Workspace 2",
+      "createdDate": "2024-03-14T12:00:00Z",
+      "createdBy": "admin",
+      "status": "Active",
+      "logicalWorkspaces": [
+        {
+          "id": 1,
+          "name": "Testing Workspace",
+          "belongingTenant": "Acme Corporation",
+          "createdDate": "2024-03-14T12:30:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 3,
+          "runningAppsCount": 1,
+          "status": "Active"
+        }
+      ]
+    }
+  ],
+  "tenants": [
+    {
+      "id": 1,
+      "tenantName": "Acme Corporation",
+      "companyName": "Acme Inc.",
+      "createdDate": "2024-01-15T08:00:00Z",
+      "createdBy": "admin",
+      "workspaceCount": 3,
+      "workspaceLimit": 5,
+      "userCount": 25,
+      "userLimit": 50,
+      "status": "Active",
+      "logicalWorkspaces": [
+        {
+          "id": 1,
+          "name": "Development",
+          "type": "Dedicated",
+          "createdDate": "2024-01-16T08:00:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 5,
+          "runningAppsCount": 2,
+          "status": "Active"
+        },
+        {
+          "id": 2,
+          "name": "Production",
+          "type": "Dedicated",
+          "createdDate": "2024-01-16T09:00:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 10,
+          "runningAppsCount": 5,
+          "status": "Active"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "tenantName": "TechStart Solutions",
+      "companyName": "TechStart Ltd.",
+      "createdDate": "2024-02-01T09:30:00Z",
+      "createdBy": "admin",
+      "workspaceCount": 2,
+      "workspaceLimit": 3,
+      "userCount": 10,
+      "userLimit": 20,
+      "status": "Active",
+      "logicalWorkspaces": [
+        {
+          "id": 1,
+          "name": "Staging",
+          "type": "Shared",
+          "createdDate": "2024-02-02T10:00:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 3,
+          "runningAppsCount": 1,
+          "status": "Active"
+        }
+      ]
+    }
+  ],
+  "messageBlockers": [
+    {
+      "id": 1,
+      "username": "mqttuser1",
+      "password": "password123",
+      "ipWhitelist": "192.168.1.0/24",
+      "description": "Production MQTT Blocker",
+      "numberOfTopics": 2,
+      "topics": [
+        {
+          "id": 1,
+          "name": "sensors/temperature",
+          "description": "Temperature sensor data",
+          "permissions": "read,write"
+        },
+        {
+          "id": 2,
+          "name": "sensors/humidity",
+          "description": "Humidity sensor data",
+          "permissions": "read"
+        }
+      ]
+    }
+  ],
+  "serverConfigs": [
+    {
+      "id": 1,
+      "name": "MQTT Port",
+      "value": "1883"
+    },
+    {
+      "id": 2,
+      "name": "WebSocket Port",
+      "value": "9001"
+    }
+  ]
+}
