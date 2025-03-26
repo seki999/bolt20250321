@@ -522,6 +522,7 @@ const showEditLogicalModal = ref(false);
 const currentWorkspace = ref<Partial<PhysicalWorkspace>>({});
 const currentLogicalWorkspace = ref<Partial<LogicalWorkspace>>({});
 const selectedPhysicalWorkspaceId = ref<number | null>(null);
+const currentTenant = ref<Partial<Tenant>>({});
 
 const loadUsers = async () => {
   try {
@@ -596,6 +597,22 @@ const toggleTenantStatus = async (tenant: Tenant) => {
     await loadTenants();
   } catch (error) {
     console.error('Error toggling tenant status:', error);
+  }
+};
+
+const editTenant = (tenant: Tenant) => {
+  currentTenant.value = { ...tenant };
+  showEditModal.value = true;
+};
+
+const deleteTenant = async (id: number) => {
+  if (confirm('Are you sure you want to delete this tenant?')) {
+    try {
+      await axios.delete(`http://localhost:3001/tenants/${id}`);
+      await loadTenants();
+    } catch (error) {
+      console.error('Error deleting tenant:', error);
+    }
   }
 };
 
