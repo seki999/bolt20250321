@@ -1,90 +1,84 @@
 <template>
   <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Personal Settings</h2>
-      <button class="btn btn-primary" @click="showAddModal = true">Add New Setting</button>
+    <!-- Profile Tag -->
+    <div class="mb-3">
+      <h5 class="text-muted">プロフィール</h5>
     </div>
 
-    <!-- Settings List -->
-    <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Setting Name</th>
-            <th>Value</th>
-            <th>Last Modified</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="setting in settings" :key="setting.id">
-            <td>{{ setting.name }}</td>
-            <td>{{ setting.value }}</td>
-            <td>{{ formatDate(setting.lastModified) }}</td>
-            <td>
-              <button 
-                class="btn btn-sm btn-outline-primary me-2"
-                @click="editSetting(setting)"
-              >
-                Edit
-              </button>
-              <button 
-                class="btn btn-sm btn-outline-danger"
-                @click="deleteSetting(setting.id)"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Basic Info Tag -->
+    <div class="mb-3">
+      <h6 class="text-muted">基本情報</h6>
     </div>
 
-    <!-- Add/Edit Modal -->
-    <div class="modal" tabindex="-1" :class="{ 'd-block': showAddModal || showEditModal }">
+    <!-- User Info Box -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <!-- Username and Email Row -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <label class="form-label mb-1">ユーザー名</label>
+                <div>{{ user?.username }}</div>
+              </div>
+              <button class="btn btn-outline-primary btn-sm" @click="showUsernameModal = true">
+                変更
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <label class="form-label mb-1">メールアドレス</label>
+                <div>{{ user?.email }}</div>
+              </div>
+              <button class="btn btn-outline-primary btn-sm" @click="showEmailModal = true">
+                変更
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Last Login Row -->
+        <div class="row">
+          <div class="col">
+            <label class="form-label mb-1">最終ログイン日時</label>
+            <div>{{ formatDate(user?.lastLogin) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Change Button -->
+    <button class="btn btn-primary" @click="showPasswordModal = true">
+      パスワード変更
+    </button>
+
+    <!-- Username Change Modal -->
+    <div class="modal" tabindex="-1" :class="{ 'd-block': showUsernameModal }">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ showEditModal ? 'Edit Setting' : 'Add New Setting' }}</h5>
-            <button 
-              type="button" 
-              class="btn-close" 
-              @click="closeModals"
-            ></button>
+            <h5 class="modal-title">ユーザー名変更</h5>
+            <button type="button" class="btn-close" @click="closeUsernameModal"></button>
           </div>
           <div class="modal-body">
-            <form @submit.prevent="handleSubmit">
+            <form @submit.prevent="handleUsernameChange">
               <div class="mb-3">
-                <label class="form-label">Setting Name</label>
+                <label class="form-label">新しいユーザー名</label>
                 <input 
                   type="text" 
                   class="form-control"
-                  v-model="currentSetting.name"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Value</label>
-                <input 
-                  type="text" 
-                  class="form-control"
-                  v-model="currentSetting.value"
+                  v-model="newUsername"
                   required
                 />
               </div>
               <div class="modal-footer">
-                <button 
-                  type="button" 
-                  class="btn btn-secondary" 
-                  @click="closeModals"
-                >
-                  Cancel
+                <button type="button" class="btn btn-secondary" @click="closeUsernameModal">
+                  キャンセル
                 </button>
-                <button 
-                  type="submit" 
-                  class="btn btn-primary"
-                >
-                  {{ showEditModal ? 'Save Changes' : 'Add Setting' }}
+                <button type="submit" class="btn btn-primary">
+                  保存
                 </button>
               </div>
             </form>
@@ -92,88 +86,221 @@
         </div>
       </div>
     </div>
-    
+
+    <!-- Email Change Modal -->
+    <div class="modal" tabindex="-1" :class="{ 'd-block': showEmailModal }">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">メールアドレス変更</h5>
+            <button type="button" class="btn-close" @click="closeEmailModal"></button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="handleEmailChange">
+              <div class="mb-3">
+                <label class="form-label">新しいメールアドレス</label>
+                <input 
+                  type="email" 
+                  class="form-control"
+                  v-model="newEmail"
+                  required
+                />
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="closeEmailModal">
+                  キャンセル
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  保存
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div class="modal" tabindex="-1" :class="{ 'd-block': showPasswordModal }">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">パスワード変更</h5>
+            <button type="button" class="btn-close" @click="closePasswordModal"></button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="handlePasswordChange">
+              <div class="mb-3">
+                <label class="form-label">新しいパスワード</label>
+                <input 
+                  type="password" 
+                  class="form-control"
+                  v-model="newPassword"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">パスワード確認</label>
+                <input 
+                  type="password" 
+                  class="form-control"
+                  v-model="confirmPassword"
+                  required
+                />
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @click="closePasswordModal">
+                  キャンセル
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  保存
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal Backdrop -->
     <div 
       class="modal-backdrop fade show" 
-      v-if="showAddModal || showEditModal"
+      v-if="showUsernameModal || showEmailModal || showPasswordModal"
     ></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useUserStore } from '../../store/user';
+import axios from 'axios';
 
-interface Setting {
-  id: number;
-  name: string;
-  value: string;
-  lastModified: string;
-}
+const userStore = useUserStore();
+const user = ref<any>(null);
 
-const settings = ref<Setting[]>([
-  {
-    id: 1,
-    name: 'Theme',
-    value: 'Light',
-    lastModified: '2024-03-14T10:00:00Z'
-  },
-  {
-    id: 2,
-    name: 'Language',
-    value: 'English',
-    lastModified: '2024-03-14T10:00:00Z'
+// Modal states
+const showUsernameModal = ref(false);
+const showEmailModal = ref(false);
+const showPasswordModal = ref(false);
+
+// Form fields
+const newUsername = ref('');
+const newEmail = ref('');
+const newPassword = ref('');
+const confirmPassword = ref('');
+
+const loadUser = async () => {
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      const response = await axios.get('http://localhost:3001/users');
+      const users = response.data;
+      user.value = users.find((u: any) => u.email === userData.email);
+    }
+  } catch (error) {
+    console.error('Error loading user:', error);
   }
-]);
+};
 
-const showAddModal = ref(false);
-const showEditModal = ref(false);
-const currentSetting = ref<Partial<Setting>>({});
+onMounted(() => {
+  loadUser();
+});
 
 const formatDate = (date: string) => {
+  if (!date) return '';
   return new Date(date).toLocaleString();
 };
 
-const closeModals = () => {
-  showAddModal.value = false;
-  showEditModal.value = false;
-  currentSetting.value = {};
+const closeUsernameModal = () => {
+  showUsernameModal.value = false;
+  newUsername.value = '';
 };
 
-const editSetting = (setting: Setting) => {
-  currentSetting.value = { ...setting };
-  showEditModal.value = true;
+const closeEmailModal = () => {
+  showEmailModal.value = false;
+  newEmail.value = '';
 };
 
-const deleteSetting = (id: number) => {
-  if (confirm('Are you sure you want to delete this setting?')) {
-    settings.value = settings.value.filter(setting => setting.id !== id);
-  }
+const closePasswordModal = () => {
+  showPasswordModal.value = false;
+  newPassword.value = '';
+  confirmPassword.value = '';
 };
 
-const handleSubmit = () => {
-  if (showEditModal.value) {
-    const index = settings.value.findIndex(s => s.id === currentSetting.value.id);
-    if (index !== -1) {
-      settings.value[index] = {
-        ...currentSetting.value as Setting,
-        lastModified: new Date().toISOString()
-      };
+const handleUsernameChange = async () => {
+  try {
+    if (user.value) {
+      await axios.patch(`http://localhost:3001/users/${user.value.id}`, {
+        username: newUsername.value
+      });
+      
+      // Update local storage
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      storedUser.username = newUsername.value;
+      localStorage.setItem('user', JSON.stringify(storedUser));
+      
+      // Update store
+      userStore.setUser(storedUser);
+      
+      await loadUser();
+      closeUsernameModal();
     }
-  } else {
-    settings.value.push({
-      id: Math.max(0, ...settings.value.map(s => s.id)) + 1,
-      name: currentSetting.value.name!,
-      value: currentSetting.value.value!,
-      lastModified: new Date().toISOString()
-    });
+  } catch (error) {
+    console.error('Error updating username:', error);
   }
-  closeModals();
+};
+
+const handleEmailChange = async () => {
+  try {
+    if (user.value) {
+      await axios.patch(`http://localhost:3001/users/${user.value.id}`, {
+        email: newEmail.value
+      });
+      
+      // Update local storage
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      storedUser.email = newEmail.value;
+      localStorage.setItem('user', JSON.stringify(storedUser));
+      
+      // Update store
+      userStore.setUser(storedUser);
+      
+      await loadUser();
+      closeEmailModal();
+    }
+  } catch (error) {
+    console.error('Error updating email:', error);
+  }
+};
+
+const handlePasswordChange = async () => {
+  try {
+    if (user.value && newPassword.value === confirmPassword.value) {
+      await axios.patch(`http://localhost:3001/users/${user.value.id}`, {
+        password: newPassword.value
+      });
+      closePasswordModal();
+    } else {
+      alert('パスワードが一致しません。');
+    }
+  } catch (error) {
+    console.error('Error updating password:', error);
+  }
 };
 </script>
 
 <style scoped>
 .modal {
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.card {
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.form-label {
+  color: #6c757d;
+  font-size: 0.875rem;
 }
 </style>
