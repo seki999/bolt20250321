@@ -587,6 +587,18 @@ const getStatusBadgeClass = (status: string) => {
   return classes[status as keyof typeof classes] || 'badge bg-secondary';
 };
 
+const toggleTenantStatus = async (tenant: Tenant) => {
+  try {
+    const newStatus = tenant.status === 'Active' ? 'Inactive' : 'Active';
+    await axios.patch(`http://localhost:3001/tenants/${tenant.id}`, {
+      status: newStatus
+    });
+    await loadTenants();
+  } catch (error) {
+    console.error('Error toggling tenant status:', error);
+  }
+};
+
 const closeWorkspaceModals = () => {
   showAddWorkspaceModal.value = false;
   showEditWorkspaceModal.value = false;
