@@ -2,21 +2,21 @@
   "users": [
     {
       "id": 1,
-      "username": "admin",
-      "name": "行田",
+      "username": "行田",
       "email": "kouda@softbank.com",
+      "password": "password",
       "company": "ソフトバンク株式会社",
       "role": "システム管理者",
       "tenantCount": 2,
       "status": "Active",
-      "lastLogin": "2025-03-21T13:16:35.246Z"
+      "lastLogin": "2025-03-26T06:05:11.259Z"
     },
     {
       "id": 2,
-      "username": "manager1",
-      "name": "Jane Smith",
-      "email": "jane@example.com",
-      "company": "TechStart Ltd.",
+      "username": "関根",
+      "email": "sekine@softbank.com",
+      "password": "password",
+      "company": "ソフトバンク株式会社.",
       "role": "Manager",
       "tenantCount": 1,
       "status": "Active",
@@ -24,10 +24,10 @@
     },
     {
       "id": 3,
-      "username": "user1",
-      "name": "Bob Wilson",
-      "email": "bob@example.com",
-      "company": "Acme Inc.",
+      "username": "石林林",
+      "email": "sekirinrin@softbank.com",
+      "password": "password",
+      "company": "leadingsoft株式会社",
       "role": "User",
       "tenantCount": 1,
       "status": "Inactive",

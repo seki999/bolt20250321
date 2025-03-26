@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 interface UserState {
   user: {
-    name: string;
+    username: string;
     email: string;
     company: string;
     role: string;

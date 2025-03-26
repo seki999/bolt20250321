@@ -62,13 +62,12 @@ const handleLogin = async () => {
     const users = response.data;
     
     // Find user by email
-    const user = users.find(u => u.email === username.value);
+    const user = users.find((u: { email: string; }) => u.email === username.value);
     
-    // In a real application, we would hash the password and compare with stored hash
-    // For demo purposes, we'll use a simple check
-    if (user && password.value === 'password123') {
+    // Check if user exists and password matches
+    if (user && user.password === password.value) {
       const userData = {
-        name: user.name,
+        username: user.username,
         email: user.email,
         company: user.company,
         role: user.role,

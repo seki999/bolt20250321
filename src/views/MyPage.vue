@@ -56,7 +56,7 @@
     <!-- User Info Popup -->
     <div v-if="showUserInfo" class="user-info-popup">
       <div class="user-details">
-        <h5>{{ user?.name }}</h5>
+        <h5>{{ user?.username }}</h5>
         <p>{{ user?.email }}</p>
         <p>{{ user?.company }}</p>
         <p>{{ user?.role }}</p>
