@@ -225,6 +225,7 @@
                       <thead>
                         <tr>
                           <th>Logical Workspace Name</th>
+                          <th>Type</th>
                           <th>Belonging Tenant</th>
                           <th>Created Date</th>
                           <th>Created By</th>
@@ -237,6 +238,7 @@
                       <tbody>
                         <tr v-for="logical in workspace.logicalWorkspaces" :key="logical.id">
                           <td>{{ logical.name }}</td>
+                          <td>{{ logical.type }}</td>
                           <td>{{ logical.belongingTenant }}</td>
                           <td>{{ formatDate(logical.createdDate) }}</td>
                           <td>{{ logical.createdBy }}</td>
@@ -396,6 +398,19 @@
                   />
                 </div>
                 <div class="col-md-6 mb-3">
+                  <label class="form-label">Type</label>
+                  <select 
+                    class="form-select"
+                    v-model="currentLogicalWorkspace.type"
+                    required
+                  >
+                    <option value="Dedicated">Dedicated</option>
+                    <option value="Shared">Shared</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
                   <label class="form-label">Belonging Tenant</label>
                   <select 
                     class="form-select"
@@ -407,8 +422,6 @@
                     </option>
                   </select>
                 </div>
-              </div>
-              <div class="row">
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Max Simultaneous Apps</label>
                   <input 
@@ -419,6 +432,8 @@
                     required
                   />
                 </div>
+              </div>
+              <div class="row">
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Status</label>
                   <select 
@@ -473,6 +488,18 @@ interface User {
   lastLogin: string;
 }
 
+interface LogicalWorkspace {
+  id: number;
+  name: string;
+  type: 'Dedicated' | 'Shared';  // Added type property
+  belongingTenant: string;
+  createdDate: string;
+  createdBy: string;
+  maxSimultaneousApps: number;
+  runningAppsCount: number;
+  status: string;
+}
+
 interface Tenant {
   id: number;
   tenantName: string;
@@ -485,17 +512,6 @@ interface Tenant {
   userLimit: number;
   status: string;
   logicalWorkspaces: LogicalWorkspace[];
-}
-
-interface LogicalWorkspace {
-  id: number;
-  name: string;
-  belongingTenant: string;
-  createdDate: string;
-  createdBy: string;
-  maxSimultaneousApps: number;
-  runningAppsCount: number;
-  status: string;
 }
 
 interface PhysicalWorkspace {
@@ -520,7 +536,9 @@ const showEditWorkspaceModal = ref(false);
 const showAddLogicalModal = ref(false);
 const showEditLogicalModal = ref(false);
 const currentWorkspace = ref<Partial<PhysicalWorkspace>>({});
-const currentLogicalWorkspace = ref<Partial<LogicalWorkspace>>({});
+const currentLogicalWorkspace = ref<Partial<LogicalWorkspace>>({
+  type: 'Dedicated'  // Set default type
+});
 const selectedPhysicalWorkspaceId = ref<number | null>(null);
 const currentTenant = ref<Partial<Tenant>>({});
 
@@ -625,7 +643,7 @@ const closeWorkspaceModals = () => {
 const closeLogicalModals = () => {
   showAddLogicalModal.value = false;
   showEditLogicalModal.value = false;
-  currentLogicalWorkspace.value = {};
+  currentLogicalWorkspace.value = { type: 'Dedicated' };  // Reset with default type
   selectedPhysicalWorkspaceId.value = null;
 };
 
@@ -670,7 +688,8 @@ const addLogicalWorkspace = (physicalWorkspaceId: number) => {
   currentLogicalWorkspace.value = {
     maxSimultaneousApps: 1,
     runningAppsCount: 0,
-    status: 'Active'
+    status: 'Active',
+    type: 'Dedicated'  // Set default type
   };
   showAddLogicalModal.value = true;
 };
@@ -731,6 +750,7 @@ const handleLogicalWorkspaceSubmit = async () => {
         workspace.logicalWorkspaces.push({
           id: Math.max(0, ...workspace.logicalWorkspaces.map(l => l.id)) + 1,
           name: currentLogicalWorkspace.value.name!,
+          type: currentLogicalWorkspace.value.type || 'Dedicated',  // Ensure type is set
           belongingTenant: currentLogicalWorkspace.value.belongingTenant!,
           createdDate: new Date().toISOString(),
           createdBy: 'admin',
