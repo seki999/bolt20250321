@@ -131,6 +131,15 @@
           <div class="modal-body">
             <form @submit.prevent="handlePasswordChange">
               <div class="mb-3">
+                <label class="form-label">現在のパスワード</label>
+                <input 
+                  type="password" 
+                  class="form-control"
+                  v-model="currentPassword"
+                  required
+                />
+              </div>
+              <div class="mb-3">
                 <label class="form-label">新しいパスワード</label>
                 <input 
                   type="password" 
@@ -186,6 +195,7 @@ const showPasswordModal = ref(false);
 // Form fields
 const newUsername = ref('');
 const newEmail = ref('');
+const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 
@@ -224,6 +234,7 @@ const closeEmailModal = () => {
 
 const closePasswordModal = () => {
   showPasswordModal.value = false;
+  currentPassword.value = '';
   newPassword.value = '';
   confirmPassword.value = '';
 };
@@ -276,13 +287,30 @@ const handleEmailChange = async () => {
 
 const handlePasswordChange = async () => {
   try {
-    if (user.value && newPassword.value === confirmPassword.value) {
+    if (user.value) {
+      // First verify current password
+      if (currentPassword.value !== user.value.password) {
+        alert('現在のパスワードが正しくありません。');
+        return;
+      }
+
+      // Check if new password is same as current password
+      if (newPassword.value === currentPassword.value) {
+        alert('新しいパスワードは現在のパスワードと異なる必要があります。');
+        return;
+      }
+
+      // Then check if new password and confirmation match
+      if (newPassword.value !== confirmPassword.value) {
+        alert('新しいパスワードが一致しません。');
+        return;
+      }
+
+      // If all validations pass, update the password
       await axios.patch(`http://localhost:3001/users/${user.value.id}`, {
         password: newPassword.value
       });
       closePasswordModal();
-    } else {
-      alert('パスワードが一致しません。');
     }
   } catch (error) {
     console.error('Error updating password:', error);
