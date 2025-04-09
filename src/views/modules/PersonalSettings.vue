@@ -325,6 +325,7 @@ const handlePasswordChange = async () => {
 
 .card {
   border: 1px solid rgba(0, 0, 0, 0.125);
+  min-width: 500px;
 }
 
 .form-label {
