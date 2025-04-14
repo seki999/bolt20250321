@@ -147,6 +147,19 @@
                   v-model="newPassword"
                   required
                 />
+                <div class="form-text">
+                  パスワードは以下の条件を満たす必要があります：
+                  <ul class="mb-0">
+                    <li>14文字以上64文字以内</li>
+                    <li>現在のパスワードと異なること</li>
+                    <li>アルファベット大文字・小文字、数字、記号のうち3種類以上を含むこと</li>
+                  </ul>
+                </div>
+                <div v-if="passwordValidationErrors.length > 0" class="alert alert-danger mt-2">
+                  <ul class="mb-0">
+                    <li v-for="error in passwordValidationErrors" :key="error">{{ error }}</li>
+                  </ul>
+                </div>
               </div>
               <div class="mb-3">
                 <label class="form-label">パスワード確認</label>
@@ -161,7 +174,11 @@
                 <button type="button" class="btn btn-secondary" @click="closePasswordModal">
                   キャンセル
                 </button>
-                <button type="submit" class="btn btn-primary">
+                <button 
+                  type="submit" 
+                  class="btn btn-primary"
+                  :disabled="passwordValidationErrors.length > 0"
+                >
                   保存
                 </button>
               </div>
@@ -180,9 +197,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useUserStore } from '../../store/user';
 import axios from 'axios';
+import bcrypt from 'bcryptjs';
 
 const userStore = useUserStore();
 const user = ref<any>(null);
@@ -198,6 +216,7 @@ const newEmail = ref('');
 const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
+const passwordValidationErrors = ref<string[]>([]);
 
 const loadUser = async () => {
   try {
@@ -237,7 +256,49 @@ const closePasswordModal = () => {
   currentPassword.value = '';
   newPassword.value = '';
   confirmPassword.value = '';
+  passwordValidationErrors.value = [];
 };
+
+const validatePassword = (password: string): string[] => {
+  const errors: string[] = [];
+  
+  // Check length
+  if (password.length < 14) {
+    errors.push('パスワードは14文字以上である必要があります');
+  }
+  if (password.length > 64) {
+    errors.push('パスワードは64文字以内である必要があります');
+  }
+
+  // Check if different from current password
+  if (password === currentPassword.value) {
+    errors.push('新しいパスワードは現在のパスワードと異なる必要があります');
+  }
+
+  // Check character types
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumbers = /[0-9]/.test(password);
+  const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+  const characterTypesCount = [hasUpperCase, hasLowerCase, hasNumbers, hasSymbols]
+    .filter(Boolean).length;
+
+  if (characterTypesCount < 3) {
+    errors.push('パスワードはアルファベット大文字・小文字、数字、記号のうち3種類以上を含む必要があります');
+  }
+
+  return errors;
+};
+
+// Watch for password changes and validate
+watch(newPassword, (password) => {
+  if (password) {
+    passwordValidationErrors.value = validatePassword(password);
+  } else {
+    passwordValidationErrors.value = [];
+  }
+});
 
 const handleUsernameChange = async () => {
   try {
@@ -290,30 +351,39 @@ const handlePasswordChange = async () => {
     if (user.value) {
       // First verify current password
       if (currentPassword.value !== user.value.password) {
+      //const isCurrentPasswordValid = await bcrypt.compare(currentPassword.value, user.value.password);
+      //if (!isCurrentPasswordValid) {
         alert('現在のパスワードが正しくありません。');
         return;
       }
 
-      // Check if new password is same as current password
-      if (newPassword.value === currentPassword.value) {
-        alert('新しいパスワードは現在のパスワードと異なる必要があります。');
+      // Validate new password
+      const validationErrors = validatePassword(newPassword.value);
+      if (validationErrors.length > 0) {
         return;
       }
 
-      // Then check if new password and confirmation match
+      // Check if new password and confirmation match
       if (newPassword.value !== confirmPassword.value) {
         alert('新しいパスワードが一致しません。');
         return;
       }
 
-      // If all validations pass, update the password
+      // Hash the new password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword.value, salt);
+
+      // Update the password in db.json
       await axios.patch(`http://localhost:3001/users/${user.value.id}`, {
-        password: newPassword.value
+        password: hashedPassword
       });
+      
       closePasswordModal();
+      alert('パスワードが正常に更新されました。');
     }
   } catch (error) {
     console.error('Error updating password:', error);
+    alert('パスワードの更新中にエラーが発生しました。');
   }
 };
 </script>
@@ -331,5 +401,15 @@ const handlePasswordChange = async () => {
 .form-label {
   color: #6c757d;
   font-size: 0.875rem;
+}
+
+.form-text ul {
+  padding-left: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.alert ul {
+  padding-left: 1.2rem;
+  margin-bottom: 0;
 }
 </style>

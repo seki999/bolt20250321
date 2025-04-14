@@ -1,6 +1,7 @@
 {
   "users": [
     {
+      "_comment": "password is Password123@softbank",
       "id": 1,
       "username": "行田",
       "email": "kouda@softbank.com",

@@ -1,4 +1,15 @@
-@use "bootstrap/scss/bootstrap" as *;
+// Add necessary Sass modules
+@use "sass:color";
+@use "sass:math";
+
+// Import Bootstrap with configuration
+@use "bootstrap/scss/bootstrap" with (
+  $enable-negative-margins: true,
+  $enable-shadows: true,
+  $enable-gradients: false
+);
+
+// Import Bootstrap Icons
 @use "bootstrap-icons/font/bootstrap-icons.css";
 
 :root {

@@ -45,6 +45,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store/user';
 import axios from 'axios';
+import bcrypt from 'bcryptjs';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -64,8 +65,9 @@ const handleLogin = async () => {
     // Find user by email
     const user = users.find((u: { email: string; }) => u.email === username.value);
     
-    // Check if user exists and password matches
+    // Check if user exists and verify password
     if (user && user.password === password.value) {
+    //if (user && await bcrypt.compare(password.value, user.password)) {
       const userData = {
         username: user.username,
         email: user.email,
