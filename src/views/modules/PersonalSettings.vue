@@ -350,9 +350,9 @@ const handlePasswordChange = async () => {
   try {
     if (user.value) {
       // First verify current password
-      if (currentPassword.value !== user.value.password) {
-      //const isCurrentPasswordValid = await bcrypt.compare(currentPassword.value, user.value.password);
-      //if (!isCurrentPasswordValid) {
+      //if (currentPassword.value !== user.value.password) {
+      const isCurrentPasswordValid = await bcrypt.compare(currentPassword.value, user.value.password);
+      if (!isCurrentPasswordValid) {
         alert('現在のパスワードが正しくありません。');
         return;
       }

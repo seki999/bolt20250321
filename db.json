@@ -5,12 +5,12 @@
       "id": 1,
       "username": "行田",
       "email": "kouda@softbank.com",
-      "password": "password",
+      "password": "$2a$10$/.4KsFpZFFzAsdX8Ec2DTuaozEdj9kavVAyHYMYPgv2vYwCDKyCbC",
       "company": "ソフトバンク株式会社",
       "role": "システム管理者",
       "tenantCount": 2,
       "status": "Active",
-      "lastLogin": "2025-03-26T06:29:24.271Z"
+      "lastLogin": "2025-04-21T09:43:12.118Z"
     },
     {
       "id": 2,
