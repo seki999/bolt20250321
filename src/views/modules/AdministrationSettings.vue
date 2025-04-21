@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Administration Settings</h2>
+      <h2>管理設定</h2>
       <button class="btn btn-primary" @click="showAddModal = true">Add New User</button>
     </div>
 
@@ -10,19 +10,18 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Username</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Workspaces</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th>ユーザー名</th>
+            <th>メールアドレス</th>
+            <th>管理者分類</th>
+            <th>ワークスペース</th>
+            <th>ステータス</th>
+            <th>最終ログイン</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="user in users" :key="user.id">
             <td>{{ user.username }}</td>
-            <td>{{ user.name }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.role }}</td>
             <td>
@@ -35,6 +34,7 @@
                 {{ user.status }}
               </span>
             </td>
+            <td><p>{{ formatDate(user?.lastLogin) }}</p></td>
             <td>
               <button 
                 class="btn btn-sm btn-outline-primary me-2"
@@ -70,7 +70,7 @@
             <form @submit.prevent="handleSubmit">
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Username</label>
+                  <label class="form-label">ユーザー名</label>
                   <input 
                     type="text" 
                     class="form-control"
@@ -78,19 +78,10 @@
                     required
                   />
                 </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Name</label>
-                  <input 
-                    type="text" 
-                    class="form-control"
-                    v-model="currentUser.name"
-                    required
-                  />
-                </div>
               </div>
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Email</label>
+                  <label class="form-label">メールアドレス</label>
                   <input 
                     type="email" 
                     class="form-control"
@@ -99,7 +90,7 @@
                   />
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Role</label>
+                  <label class="form-label">管理者分類</label>
                   <select 
                     class="form-select"
                     v-model="currentUser.role"
@@ -113,24 +104,7 @@
                 </div>
               </div>
               <div class="mb-3">
-                <label class="form-label">Workspace Access</label>
-                <div class="border rounded p-3">
-                  <div class="form-check" v-for="workspace in availableWorkspaces" :key="workspace">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      :id="'workspace-' + workspace"
-                      :value="workspace"
-                      v-model="currentUser.workspaces"
-                    />
-                    <label class="form-check-label" :for="'workspace-' + workspace">
-                      {{ workspace }}
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Status</label>
+                <label class="form-label">ステータス</label>
                 <select 
                   class="form-select"
                   v-model="currentUser.status"
@@ -176,35 +150,33 @@ import { ref } from 'vue';
 interface User {
   id: number;
   username: string;
-  name: string;
   email: string;
   role: string;
   workspaces: string[];
   status: string;
+  lastLogin?:string;
 }
 
 const users = ref<User[]>([
   {
     id: 1,
     username: 'admin',
-    name: 'John Doe',
     email: 'john@example.com',
     role: 'Administrator',
     workspaces: ['Workspace 1', 'Workspace 2', 'Workspace 3'],
-    status: 'Active'
+    status: 'Active',
+    lastLogin: "2025-04-21T09:43:12.118Z"
   },
   {
     id: 2,
     username: 'manager1',
-    name: 'Jane Smith',
     email: 'jane@example.com',
     role: 'Manager',
     workspaces: ['Workspace 1', 'Workspace 2'],
-    status: 'Active'
+    status: 'Active',
+    lastLogin: "2025-04-21T09:43:12.118Z"
   }
 ]);
-
-const availableWorkspaces = ['Workspace 1', 'Workspace 2', 'Workspace 3', 'Workspace 4'];
 
 const showAddModal = ref(false);
 const showEditModal = ref(false);
@@ -250,7 +222,6 @@ const handleSubmit = () => {
     users.value.push({
       id: Math.max(0, ...users.value.map(u => u.id)) + 1,
       username: currentUser.value.username!,
-      name: currentUser.value.name!,
       email: currentUser.value.email!,
       role: currentUser.value.role!,
       workspaces: currentUser.value.workspaces || [],
@@ -259,6 +230,11 @@ const handleSubmit = () => {
   }
   closeModals();
 };
+const formatDate = (date: string | undefined) => {
+  if (!date) return '';
+  return new Date(date).toLocaleString();
+};
+
 </script>
 
 <style scoped>
