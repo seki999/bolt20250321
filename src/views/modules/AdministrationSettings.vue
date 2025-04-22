@@ -13,7 +13,6 @@
             <th>ユーザー名</th>
             <th>メールアドレス</th>
             <th>管理者分類</th>
-            <th>ワークスペース</th>
             <th>ステータス</th>
             <th>最終ログイン</th>
             <th>操作</th>
@@ -24,11 +23,6 @@
             <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.role }}</td>
-            <td>
-              <span class="badge bg-info me-1" v-for="workspace in user.workspaces" :key="workspace">
-                {{ workspace }}
-              </span>
-            </td>
             <td>
               <span :class="getStatusBadgeClass(user.status)">
                 {{ user.status }}
@@ -152,9 +146,8 @@ interface User {
   username: string;
   email: string;
   role: string;
-  workspaces: string[];
   status: string;
-  lastLogin?:string;
+  lastLogin?: string;
 }
 
 const users = ref<User[]>([
@@ -163,7 +156,6 @@ const users = ref<User[]>([
     username: 'admin',
     email: 'john@example.com',
     role: 'Administrator',
-    workspaces: ['Workspace 1', 'Workspace 2', 'Workspace 3'],
     status: 'Active',
     lastLogin: "2025-04-21T09:43:12.118Z"
   },
@@ -172,7 +164,6 @@ const users = ref<User[]>([
     username: 'manager1',
     email: 'jane@example.com',
     role: 'Manager',
-    workspaces: ['Workspace 1', 'Workspace 2'],
     status: 'Active',
     lastLogin: "2025-04-21T09:43:12.118Z"
   }
@@ -180,9 +171,7 @@ const users = ref<User[]>([
 
 const showAddModal = ref(false);
 const showEditModal = ref(false);
-const currentUser = ref<Partial<User>>({
-  workspaces: []
-});
+const currentUser = ref<Partial<User>>({});
 
 const getStatusBadgeClass = (status: string) => {
   const classes = {
@@ -196,7 +185,7 @@ const getStatusBadgeClass = (status: string) => {
 const closeModals = () => {
   showAddModal.value = false;
   showEditModal.value = false;
-  currentUser.value = { workspaces: [] };
+  currentUser.value = {};
 };
 
 const editUser = (user: User) => {
@@ -224,17 +213,16 @@ const handleSubmit = () => {
       username: currentUser.value.username!,
       email: currentUser.value.email!,
       role: currentUser.value.role!,
-      workspaces: currentUser.value.workspaces || [],
       status: currentUser.value.status!
     });
   }
   closeModals();
 };
+
 const formatDate = (date: string | undefined) => {
   if (!date) return '';
   return new Date(date).toLocaleString();
 };
-
 </script>
 
 <style scoped>
