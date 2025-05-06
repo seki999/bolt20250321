@@ -158,7 +158,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 
 interface User {
   id: number;
@@ -169,29 +170,24 @@ interface User {
   lastLogin?: string;
 }
 
-const users = ref<User[]>([
-  {
-    id: 1,
-    username: 'admin',
-    email: 'john@example.com',
-    role: 'Administrator',
-    status: 'Active',
-    lastLogin: "2025-04-21T09:43:12.118Z"
-  },
-  {
-    id: 2,
-    username: 'manager1',
-    email: 'jane@example.com',
-    role: 'Manager',
-    status: 'Active',
-    lastLogin: "2025-04-21T09:43:12.118Z"
-  }
-]);
-
+const users = ref<User[]>([]);
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const currentUser = ref<Partial<User>>({});
 const searchQuery = ref('');
+
+const loadUsers = async () => {
+  try {
+    const response = await axios.get('http://localhost:3001/users');
+    users.value = response.data;
+  } catch (error) {
+    console.error('Error loading users:', error);
+  }
+};
+
+onMounted(() => {
+  loadUsers();
+});
 
 const filteredUsers = computed(() => {
   if (!searchQuery.value) return users.value;
@@ -227,30 +223,32 @@ const editUser = (user: User) => {
   showEditModal.value = true;
 };
 
-const deleteUser = (id: number) => {
+const deleteUser = async (id: number) => {
   if (confirm('Are you sure you want to delete this user?')) {
-    users.value = users.value.filter(user => user.id !== id);
+    try {
+      await axios.delete(`http://localhost:3001/users/${id}`);
+      await loadUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
   }
 };
 
-const handleSubmit = () => {
-  if (showEditModal.value) {
-    const index = users.value.findIndex(u => u.id === currentUser.value.id);
-    if (index !== -1) {
-      users.value[index] = {
-        ...currentUser.value as User
-      };
+const handleSubmit = async () => {
+  try {
+    if (showEditModal.value) {
+      await axios.put(`http://localhost:3001/users/${currentUser.value.id}`, currentUser.value);
+    } else {
+      await axios.post('http://localhost:3001/users', {
+        ...currentUser.value,
+        lastLogin: new Date().toISOString()
+      });
     }
-  } else {
-    users.value.push({
-      id: Math.max(0, ...users.value.map(u => u.id)) + 1,
-      username: currentUser.value.username!,
-      email: currentUser.value.email!,
-      role: currentUser.value.role!,
-      status: currentUser.value.status!
-    });
+    await loadUsers();
+    closeModals();
+  } catch (error) {
+    console.error('Error saving user:', error);
   }
-  closeModals();
 };
 
 const formatDate = (date: string | undefined) => {
