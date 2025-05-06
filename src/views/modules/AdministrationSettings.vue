@@ -5,6 +5,25 @@
       <button class="btn btn-primary" @click="showAddModal = true">Add New User</button>
     </div>
 
+    <!-- Search Bar -->
+    <div class="mb-4 d-flex justify-content-end">
+      <div class="input-group" style="width: 33.33%;">
+        <input 
+          type="text" 
+          class="form-control" 
+          v-model="searchQuery"
+          placeholder="ユーザー名またはメールアドレスで検索..."
+        />
+        <button 
+          class="btn btn-outline-secondary" 
+          type="button"
+          @click="clearSearch"
+        >
+          クリア
+        </button>
+      </div>
+    </div>
+
     <!-- Users List -->
     <div class="table-responsive">
       <table class="table">
@@ -19,7 +38,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users" :key="user.id">
+          <tr v-for="user in filteredUsers" :key="user.id">
             <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.role }}</td>
@@ -139,7 +158,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 interface User {
   id: number;
@@ -172,6 +191,17 @@ const users = ref<User[]>([
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const currentUser = ref<Partial<User>>({});
+const searchQuery = ref('');
+
+const filteredUsers = computed(() => {
+  if (!searchQuery.value) return users.value;
+  
+  const query = searchQuery.value.toLowerCase();
+  return users.value.filter(user => 
+    user.username.toLowerCase().includes(query) ||
+    user.email.toLowerCase().includes(query)
+  );
+});
 
 const getStatusBadgeClass = (status: string) => {
   const classes = {
@@ -180,6 +210,10 @@ const getStatusBadgeClass = (status: string) => {
     Pending: 'badge bg-warning text-dark'
   };
   return classes[status as keyof typeof classes] || 'badge bg-secondary';
+};
+
+const clearSearch = () => {
+  searchQuery.value = '';
 };
 
 const closeModals = () => {
