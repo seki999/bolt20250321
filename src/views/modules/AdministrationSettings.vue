@@ -47,7 +47,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in filteredUsers" :key="user.id">
+          <tr v-for="user in paginatedUsers" :key="user.id">
             <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.role }}</td>
@@ -74,6 +74,42 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-end align-items-center mt-3 gap-4">
+      <div class="text-muted">
+        総計 {{ filteredUsers.length }}件
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button 
+          class="btn btn-sm btn-outline-primary" 
+          @click="currentPage--"
+          :disabled="currentPage === 1"
+        >
+          前へ
+        </button>
+        <span class="mx-2">
+          {{ currentPage }} / {{ totalPages }}
+        </span>
+        <button 
+          class="btn btn-sm btn-outline-primary" 
+          @click="currentPage++"
+          :disabled="currentPage === totalPages"
+        >
+          次へ
+        </button>
+        <span class="ms-3">表示件数:</span>
+        <select 
+          class="form-select form-select-sm" 
+          style="width: 80px"
+          v-model="pageSize"
+        >
+          <option v-for="size in pageSizeOptions" :key="size" :value="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <!-- Add/Edit Modal -->
@@ -165,7 +201,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 
 interface User {
@@ -174,7 +210,7 @@ interface User {
   email: string;
   role: string;
   status: string;
-  lastLogin?: string;
+  lastLogin: string;
 }
 
 const users = ref<User[]>([]);
@@ -183,6 +219,11 @@ const showEditModal = ref(false);
 const currentUser = ref<Partial<User>>({});
 const searchQuery = ref('');
 const selectedRole = ref('');
+
+// Pagination
+const currentPage = ref(1);
+const pageSize = ref(10);
+const pageSizeOptions = [10, 20, 30, 40, 50];
 
 const loadUsers = async () => {
   try {
@@ -217,6 +258,22 @@ const filteredUsers = computed(() => {
   return filtered;
 });
 
+// Pagination computed properties
+const totalPages = computed(() => 
+  Math.ceil(filteredUsers.value.length / pageSize.value)
+);
+
+const paginatedUsers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredUsers.value.slice(start, end);
+});
+
+// Watch for changes that should reset pagination
+watch([searchQuery, selectedRole, pageSize], () => {
+  currentPage.value = 1;
+});
+
 const getStatusBadgeClass = (status: string) => {
   const classes = {
     Active: 'badge bg-success',
@@ -229,6 +286,7 @@ const getStatusBadgeClass = (status: string) => {
 const clearSearch = () => {
   searchQuery.value = '';
   selectedRole.value = '';
+  currentPage.value = 1;
 };
 
 const closeModals = () => {
@@ -247,6 +305,11 @@ const deleteUser = async (id: number) => {
     try {
       await axios.delete(`http://localhost:3001/users/${id}`);
       await loadUsers();
+      
+      // Reset to first page if current page is now empty
+      if (currentPage.value > totalPages.value) {
+        currentPage.value = totalPages.value || 1;
+      }
     } catch (error) {
       console.error('Error deleting user:', error);
     }
@@ -270,7 +333,7 @@ const handleSubmit = async () => {
   }
 };
 
-const formatDate = (date: string | undefined) => {
+const formatDate = (date: string) => {
   if (!date) return '';
   return new Date(date).toLocaleString();
 };
