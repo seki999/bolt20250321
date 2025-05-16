@@ -5,8 +5,17 @@
       <button class="btn btn-primary" @click="showAddModal = true">Add New User</button>
     </div>
 
-    <!-- Search Bar -->
-    <div class="mb-4 d-flex justify-content-end">
+    <!-- Search Bar and Role Filter -->
+    <div class="mb-4 d-flex justify-content-end align-items-center gap-3">
+      <select 
+        class="form-select" 
+        style="width: 200px;"
+        v-model="selectedRole"
+      >
+        <option value="">全ての管理者分類</option>
+        <option value="システム管理者">システム管理者</option>
+        <option value="業務管理者">業務管理者</option>
+      </select>
       <div class="input-group" style="width: 33.33%;">
         <input 
           type="text" 
@@ -47,7 +56,7 @@
                 {{ user.status }}
               </span>
             </td>
-            <td><p>{{ formatDate(user?.lastLogin) }}</p></td>
+            <td>{{ formatDate(user.lastLogin) }}</td>
             <td>
               <button 
                 class="btn btn-sm btn-outline-primary me-2"
@@ -109,10 +118,8 @@
                     v-model="currentUser.role"
                     required
                   >
-                    <option value="Administrator">Administrator</option>
-                    <option value="Manager">Manager</option>
-                    <option value="User">User</option>
-                    <option value="Guest">Guest</option>
+                    <option value="システム管理者">システム管理者</option>
+                    <option value="業務管理者">業務管理者</option>
                   </select>
                 </div>
               </div>
@@ -175,6 +182,7 @@ const showAddModal = ref(false);
 const showEditModal = ref(false);
 const currentUser = ref<Partial<User>>({});
 const searchQuery = ref('');
+const selectedRole = ref('');
 
 const loadUsers = async () => {
   try {
@@ -190,13 +198,23 @@ onMounted(() => {
 });
 
 const filteredUsers = computed(() => {
-  if (!searchQuery.value) return users.value;
+  let filtered = users.value;
   
-  const query = searchQuery.value.toLowerCase();
-  return users.value.filter(user => 
-    user.username.toLowerCase().includes(query) ||
-    user.email.toLowerCase().includes(query)
-  );
+  // Filter by role if selected
+  if (selectedRole.value) {
+    filtered = filtered.filter(user => user.role === selectedRole.value);
+  }
+  
+  // Filter by search query
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(user => 
+      user.username.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query)
+    );
+  }
+  
+  return filtered;
 });
 
 const getStatusBadgeClass = (status: string) => {
@@ -210,6 +228,7 @@ const getStatusBadgeClass = (status: string) => {
 
 const clearSearch = () => {
   searchQuery.value = '';
+  selectedRole.value = '';
 };
 
 const closeModals = () => {
