@@ -19,7 +19,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="app in apps" :key="app.id">
+          <tr v-for="app in paginatedApps" :key="app.id">
             <td>{{ app.name }}</td>
             <td>{{ formatDate(app.updatedAt) }}</td>
             <td>{{ app.updatedBy }}</td>
@@ -52,11 +52,47 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-end align-items-center mt-3 gap-4">
+      <div class="text-muted">
+        総計 {{ apps.length }}件
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button 
+          class="btn btn-sm btn-outline-primary" 
+          @click="currentPage--"
+          :disabled="currentPage === 1"
+        >
+          前へ
+        </button>
+        <span class="mx-2">
+          {{ currentPage }} / {{ totalPages }}
+        </span>
+        <button 
+          class="btn btn-sm btn-outline-primary" 
+          @click="currentPage++"
+          :disabled="currentPage === totalPages"
+        >
+          次へ
+        </button>
+        <span class="ms-3">表示件数:</span>
+        <select 
+          class="form-select form-select-sm" 
+          style="width: 80px"
+          v-model="pageSize"
+        >
+          <option v-for="size in pageSizeOptions" :key="size" :value="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 interface App {
   id: number;
@@ -95,8 +131,38 @@ const apps = ref<App[]>([
     engineVersion: '1.1.0',
     performance: 'ON',
     status: '異常停止'
-  }
+  },
+  // Add more sample data for pagination testing
+  ...Array.from({ length: 20 }, (_, i) => ({
+    id: i + 4,
+    name: `サンプルアプリ${i + 4}`,
+    updatedAt: new Date().toISOString(),
+    updatedBy: '山田太郎',
+    engineVersion: '1.1.0',
+    performance: i % 2 === 0 ? 'ON' : 'OFF' as 'ON' | 'OFF',
+    status: '実行中' as '実行中' | '停止済み' | '異常停止'
+  }))
 ]);
+
+// Pagination
+const currentPage = ref(1);
+const pageSize = ref(10);
+const pageSizeOptions = [10, 20, 30, 40, 50];
+
+const totalPages = computed(() => 
+  Math.ceil(apps.value.length / pageSize.value)
+);
+
+const paginatedApps = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return apps.value.slice(start, end);
+});
+
+// Watch for changes that should reset pagination
+watch(pageSize, () => {
+  currentPage.value = 1;
+});
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleString('ja-JP');
