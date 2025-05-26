@@ -2,7 +2,24 @@
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2>アプリ管理</h2>
-      <button class="btn btn-primary" @click="showAddModal = true">新規アプリ</button>
+      <div class="d-flex gap-3">
+        <div class="input-group" style="width: 300px;">
+          <input 
+            type="text" 
+            class="form-control" 
+            v-model="searchQuery"
+            placeholder="アプリ名または更新者で検索..."
+          />
+          <button 
+            class="btn btn-outline-secondary" 
+            type="button"
+            @click="clearSearch"
+          >
+            クリア
+          </button>
+        </div>
+        <button class="btn btn-primary" @click="showAddModal = true">新規アプリ</button>
+      </div>
     </div>
 
     <div class="table-responsive">
@@ -56,7 +73,7 @@
     <!-- Pagination Controls -->
     <div class="d-flex justify-content-end align-items-center mt-3 gap-4">
       <div class="text-muted">
-        総計 {{ apps.length }}件
+        総計 {{ filteredApps.length }}件
       </div>
       <div class="d-flex align-items-center gap-2">
         <button 
@@ -144,23 +161,40 @@ const apps = ref<App[]>([
   }))
 ]);
 
+// Search functionality
+const searchQuery = ref('');
+
+const filteredApps = computed(() => {
+  if (!searchQuery.value) return apps.value;
+  
+  const query = searchQuery.value.toLowerCase();
+  return apps.value.filter(app => 
+    app.name.toLowerCase().includes(query) ||
+    app.updatedBy.toLowerCase().includes(query)
+  );
+});
+
+const clearSearch = () => {
+  searchQuery.value = '';
+};
+
 // Pagination
 const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizeOptions = [10, 20, 30, 40, 50];
 
 const totalPages = computed(() => 
-  Math.ceil(apps.value.length / pageSize.value)
+  Math.ceil(filteredApps.value.length / pageSize.value)
 );
 
 const paginatedApps = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value;
   const end = start + pageSize.value;
-  return apps.value.slice(start, end);
+  return filteredApps.value.slice(start, end);
 });
 
 // Watch for changes that should reset pagination
-watch(pageSize, () => {
+watch([pageSize, searchQuery], () => {
   currentPage.value = 1;
 });
 
