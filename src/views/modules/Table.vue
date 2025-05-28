@@ -172,7 +172,7 @@ interface Table {
 }
 
 // APIのエンドポイント
-const API_URL = 'http://localhost:3001/api/tables'; // 仮のAPIエンドポイント
+const API_URL = 'http://localhost:3002/tables'; // tables.json 専用サーバーのエンドポイントに変更
 
 const tables = ref<Table[]>([]);
 const selectedTableId = ref<number | null>(null);

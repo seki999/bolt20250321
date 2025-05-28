@@ -279,27 +279,5 @@
       "name": "WebSocket Port",
       "value": "9001"
     }
-  ],
-  "tables": [
-    {
-      "name": "table1",
-      "fields": [
-        {
-          "name": "a",
-          "type": "text"
-        },
-        {
-          "name": "b",
-          "type": "number"
-        }
-      ],
-      "data": [
-        {
-          "a": "1",
-          "b": 2
-        }
-      ],
-      "id": 1
-    }
   ]
 }

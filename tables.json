@@ -1,1 +1,29 @@
-[]
+{
+  "tables": [
+    {
+      "name": "table1",
+      "fields": [
+        {
+          "name": "a",
+          "type": "text"
+        },
+        {
+          "name": "b",
+          "type": "number"
+        },
+        {
+          "name": "c",
+          "type": "date"
+        }
+      ],
+      "data": [
+        {
+          "a": "a",
+          "b": 1,
+          "c": "2025-05-28"
+        }
+      ],
+      "id": 1
+    }
+  ]
+}
