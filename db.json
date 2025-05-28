@@ -10,7 +10,7 @@
       "role": "システム管理者",
       "tenantCount": 2,
       "status": "Active",
-      "lastLogin": "2025-05-16T06:04:56.777Z"
+      "lastLogin": "2025-05-28T04:20:45.833Z"
     },
     {
       "id": 2,
@@ -133,7 +133,6 @@
       "status": "Inactive",
       "lastLogin": "2024-03-13T15:00:00Z"
     }
-    
   ],
   "physicalWorkspaces": [
     {
@@ -279,6 +278,28 @@
       "id": 2,
       "name": "WebSocket Port",
       "value": "9001"
+    }
+  ],
+  "tables": [
+    {
+      "name": "table1",
+      "fields": [
+        {
+          "name": "a",
+          "type": "text"
+        },
+        {
+          "name": "b",
+          "type": "number"
+        }
+      ],
+      "data": [
+        {
+          "a": "1",
+          "b": 2
+        }
+      ],
+      "id": 1
     }
   ]
 }

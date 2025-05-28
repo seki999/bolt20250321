@@ -153,7 +153,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import axios from 'axios'; // axios をインポート
 
 // Assuming Bootstrap Icons are available, if not, text can be used for buttons.
 // 例: <i class="bi bi-trash"></i> は "削除" に置き換え可能です
@@ -164,15 +165,17 @@ interface Field {
 }
 
 interface Table {
-  id: number;
+  id: number | string; // バックエンドが生成するIDは文字列の場合もあるため string も許容
   name: string;
   fields: Field[];
   data: Record<string, any>[]; // Each object in data is a row
 }
 
+// APIのエンドポイント
+const API_URL = 'http://localhost:3001/api/tables'; // 仮のAPIエンドポイント
+
 const tables = ref<Table[]>([]);
 const selectedTableId = ref<number | null>(null);
-const nextTableId = ref(1); // Simple ID generator
 
 const showCreateTableModal = ref(false);
 const newTableName = ref('');
@@ -184,6 +187,21 @@ const newRowData = ref<Record<string, any>>({});
 const selectedTable = computed(() => {
   return tables.value.find(t => t.id === selectedTableId.value) || null;
 });
+
+// --- API連携のための関数 ---
+const fetchTables = async () => {
+  try {
+    const response = await axios.get<Table[]>(API_URL);
+    tables.value = response.data;
+    if (tables.value.length > 0 && !selectedTableId.value) {
+      // Optionally select the first table if none is selected
+      // selectTable(tables.value[0].id);
+    }
+  } catch (error) {
+    console.error('テーブルの読み込みに失敗しました:', error);
+    alert('テーブルの読み込みに失敗しました。');
+  }
+};
 
 // Watch selectedTable to reset newRowData and prepare it for the new table structure
 watch(selectedTable, (currentTable) => {
@@ -201,6 +219,10 @@ watch(selectedTable, (currentTable) => {
   }
 }, { immediate: true });
 
+// コンポーネントマウント時にテーブルを読み込む
+onMounted(() => {
+  fetchTables();
+});
 
 const openCreateTableModal = () => {
   newTableName.value = '';
@@ -222,7 +244,7 @@ const removeField = (index: number) => {
   }
 };
 
-const createTable = () => {
+const createTable = async () => {
   if (!newTableName.value.trim()) {
     alert('テーブル名を入力してください。'); // Table name cannot be empty!
     return;
@@ -241,23 +263,33 @@ const createTable = () => {
     return;
   }
 
-  const newTable: Table = {
-    id: nextTableId.value++,
+  const newTableData = {
     name: newTableName.value.trim(),
     fields: newTableFields.value.map(f => ({ name: f.name.trim(), type: f.type })),
     data: [],
   };
-  tables.value.push(newTable);
-  closeCreateTableModal();
-  selectTable(newTable.id); 
+
+  try {
+    const response = await axios.post<Table>(API_URL, newTableData);
+    tables.value.push(response.data);
+    closeCreateTableModal();
+    selectTable(response.data.id);
+  } catch (error) {
+    console.error('テーブルの作成に失敗しました:', error);
+    alert('テーブルの作成に失敗しました。');
+  }
 };
 
 const selectTable = (tableId: number) => {
   selectedTableId.value = tableId;
 };
 
-const addDataToTable = () => {
-  if (!selectedTable.value) return;
+const addDataToTable = async () => {
+  if (!selectedTable.value) {
+    alert('追加先のテーブルが選択されていません。');
+    return;
+  }
+  const currentTable = selectedTable.value;
 
   const rowToAdd = { ...newRowData.value };
 
@@ -268,31 +300,63 @@ const addDataToTable = () => {
     }
   });
 
-  selectedTable.value.data.push(rowToAdd);
-  
-  const initialData: Record<string, any> = {};
-  selectedTable.value.fields.forEach(field => {
-    if (field.type === 'number') initialData[field.name] = null;
-    else if (field.type === 'date') initialData[field.name] = '';
-    else initialData[field.name] = '';
-  });
-  newRowData.value = initialData;
+  const updatedData = [...currentTable.data, rowToAdd];
+
+  try {
+    const response = await axios.put<Table>(`${API_URL}/${currentTable.id}`, { ...currentTable, data: updatedData });
+    const tableIndex = tables.value.findIndex(t => t.id === currentTable.id);
+    if (tableIndex !== -1) {
+      tables.value[tableIndex] = response.data;
+    }
+    // newRowData をリセット
+    const initialDataReset: Record<string, any> = {};
+    currentTable.fields.forEach(field => {
+      if (field.type === 'number') initialDataReset[field.name] = null;
+      else if (field.type === 'date') initialDataReset[field.name] = '';
+      else initialDataReset[field.name] = '';
+    });
+    newRowData.value = initialDataReset;
+  } catch (error) {
+    console.error('データの追加に失敗しました:', error);
+    alert('データの追加に失敗しました。');
+  }
 };
 
-const confirmDeleteTable = (tableId: number) => {
+const confirmDeleteTable = async (tableId: number | string) => {
   const tableToDelete = tables.value.find(t => t.id === tableId);
   if (tableToDelete && confirm(`テーブル「${tableToDelete.name}」を削除してもよろしいですか？この操作は元に戻せません。`)) { // Are you sure you want to delete table "..."? This action cannot be undone.
-    tables.value = tables.value.filter(t => t.id !== tableId);
-    if (selectedTableId.value === tableId) {
-      selectedTableId.value = null; 
+    try {
+      await axios.delete(`${API_URL}/${tableId}`);
+      tables.value = tables.value.filter(t => t.id !== tableId);
+      if (selectedTableId.value === tableId) {
+        selectedTableId.value = null;
+      }
+    } catch (error) {
+      console.error('テーブルの削除に失敗しました:', error);
+      alert('テーブルの削除に失敗しました。');
     }
   }
 };
 
-const deleteDataRow = (rowIndex: number) => {
-  if (!selectedTable.value) return;
+const deleteDataRow = async (rowIndex: number) => {
+  if (!selectedTable.value) {
+     alert('行を削除するテーブルが選択されていません。');
+     return;
+  }
+  const currentTable = selectedTable.value;
   if (confirm('この行データを削除してもよろしいですか？')) { // Are you sure you want to delete this data row?
-     selectedTable.value.data.splice(rowIndex, 1);
+    const updatedData = [...currentTable.data];
+    updatedData.splice(rowIndex, 1);
+    try {
+      const response = await axios.put<Table>(`${API_URL}/${currentTable.id}`, { ...currentTable, data: updatedData });
+      const tableIndex = tables.value.findIndex(t => t.id === currentTable.id);
+      if (tableIndex !== -1) {
+        tables.value[tableIndex] = response.data;
+      }
+    } catch (error) {
+      console.error('行データの削除に失敗しました:', error);
+      alert('行データの削除に失敗しました。');
+    }
   }
 };
 
