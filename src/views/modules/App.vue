@@ -1,5 +1,3 @@
-import React, { useState } from 'react';
-
 <template>
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -20,11 +18,19 @@ import React, { useState } from 'react';
             クリア
           </button>
         </div>
+        <button 
+          class="btn btn-outline-secondary" 
+          @click="toggleView"
+          title="表示切り替え"
+        >
+          <i class="bi" :class="viewMode === 'list' ? 'bi-grid' : 'bi-list'"></i>
+        </button>
         <button class="btn btn-primary" @click="showAddModal = true">新規アプリ</button>
       </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- List View -->
+    <div v-if="viewMode === 'list'" class="table-responsive">
       <table class="table">
         <thead>
           <tr>
@@ -90,6 +96,47 @@ import React, { useState } from 'react';
       </table>
     </div>
 
+    <!-- Grid View -->
+    <div v-else class="row g-4">
+      <div v-for="app in paginatedApps" :key="app.id" class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title mb-3">{{ app.name }}</h5>
+            <div class="card-text">
+              <div class="mb-2">
+                <small class="text-muted">更新日時:</small> {{ formatDate(app.updatedAt) }}<br>
+                <small class="text-muted">更新者:</small> {{ app.updatedBy }}<br>
+                <span :class="getStatusBadgeClass(app.status)" class="me-2">
+                  {{ app.status }}
+                </span>
+              </div>
+              <div>
+                <small class="text-muted">エンジンバージョン:</small> {{ app.engineVersion }}<br>
+                <small class="text-muted">パフォーマンス:</small>
+                <span :class="getPerformanceBadgeClass(app.performance)" class="ms-1">
+                  {{ app.performance }}
+                </span>
+              </div>
+            </div>
+            <div class="mt-3">
+              <button 
+                class="btn btn-sm btn-outline-primary me-2"
+                @click="editApp(app)"
+              >
+                変更
+              </button>
+              <button 
+                class="btn btn-sm btn-outline-danger"
+                @click="deleteApp(app.id)"
+              >
+                削除
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Pagination Controls -->
     <div class="d-flex justify-content-end align-items-center mt-3 gap-4">
       <div class="text-muted">
@@ -141,6 +188,7 @@ interface App {
   status: '実行中' | '停止済み' | '異常停止';
 }
 
+const viewMode = ref<'list' | 'grid'>('list');
 const apps = ref<App[]>([
   {
     id: 1,
@@ -271,6 +319,10 @@ const getStatusBadgeClass = (status: string) => {
   return classes[status as keyof typeof classes];
 };
 
+const toggleView = () => {
+  viewMode.value = viewMode.value === 'list' ? 'grid' : 'list';
+};
+
 const editApp = (app: App) => {
   console.log('Edit app:', app);
   // Implement edit functionality
@@ -295,5 +347,25 @@ th {
 th i {
   margin-left: 0.5rem;
   font-size: 0.75rem;
+}
+
+.card {
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: 1.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card .badge {
+  display: inline-block;
+  margin-top: 0.25rem;
 }
 </style>
