@@ -1,0 +1,454 @@
+{
+  "apps": [
+    {
+      "id": 1,
+      "name": "DB登録アプリ",
+      "updatedAt": "2024-03-20T10:30:00Z",
+      "updatedBy": "山田太郎",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 2,
+      "name": "教室予約アプリ",
+      "updatedAt": "2024-03-19T15:45:00Z",
+      "updatedBy": "鈴木一郎",
+      "engineVersion": "1.0.0",
+      "performance": "OFF",
+      "status": "停止済み"
+    },
+    {
+      "id": 3,
+      "name": "体感温度予報アプリ",
+      "updatedAt": "2024-03-18T08:15:00Z",
+      "updatedBy": "佐藤花子",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "異常停止"
+    },
+    {
+      "id": 4,
+      "name": "EVPF疎通確認ツール",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "田中一郎",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 5,
+      "name": "MQTT接続テスト",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "中村さくら",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 6,
+      "name": "API受信モックサーバー",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "小林健太",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 7,
+      "name": "在庫管理システム",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "加藤美咲",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 8,
+      "name": "顧客情報分析",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "吉田大輔",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 9,
+      "name": "勤怠管理アプリ",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "伊藤あやか",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 10,
+      "name": "プロジェクト進捗管理",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "山本直樹",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 11,
+      "name": "日報自動生成",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "森田陽子",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 12,
+      "name": "アンケート集計ツール",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "井上誠",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 13,
+      "name": "画像処理ライブラリ",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "木村久美子",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 14,
+      "name": "ログ解析システム",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "林雄太",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 15,
+      "name": "自動翻訳API連携",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "清水恵",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 16,
+      "name": "Eコマース推薦エンジン",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "山口拓也",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 17,
+      "name": "チャットボット開発",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "松本真由美",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 18,
+      "name": "気象データ可視化",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "斎藤隆",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 19,
+      "name": "IoTデバイス管理",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "岡田愛",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 20,
+      "name": "リアルタイム株価表示",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "橋本和也",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 21,
+      "name": "交通情報配信システム",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "阿部由美",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 22,
+      "name": "オンライン学習プラットフォーム",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "石川涼子",
+      "engineVersion": "1.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 23,
+      "name": "健康管理アプリ連携",
+      "updatedAt": "2024-05-30T00:00:00Z",
+      "updatedBy": "高橋学",
+      "engineVersion": "1.1.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 24,
+      "name": "レシピ検索エンジン",
+      "updatedAt": "2024-06-01T09:00:00Z",
+      "updatedBy": "渡辺直人",
+      "engineVersion": "1.2.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 25,
+      "name": "オンライン会議システム",
+      "updatedAt": "2024-06-01T10:15:00Z",
+      "updatedBy": "佐々木希",
+      "engineVersion": "2.0.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 26,
+      "name": "タスク管理ボード",
+      "updatedAt": "2024-06-02T11:30:00Z",
+      "updatedBy": "藤田真央",
+      "engineVersion": "1.0.5",
+      "performance": "OFF",
+      "status": "停止済み"
+    },
+    {
+      "id": 27,
+      "name": "イベント告知プラットフォーム",
+      "updatedAt": "2024-06-02T14:00:00Z",
+      "updatedBy": "遠藤航",
+      "engineVersion": "1.3.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 28,
+      "name": "ファイル共有サービス",
+      "updatedAt": "2024-06-03T08:45:00Z",
+      "updatedBy": "斉藤優子",
+      "engineVersion": "1.1.8",
+      "performance": "ON",
+      "status": "異常停止"
+    },
+    {
+      "id": 29,
+      "name": "AIチャットサポート",
+      "updatedAt": "2024-06-03T16:20:00Z",
+      "updatedBy": "近藤春菜",
+      "engineVersion": "2.1.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 30,
+      "name": "音楽ストリーミングアプリ",
+      "updatedAt": "2024-06-04T10:00:00Z",
+      "updatedBy": "岡本圭人",
+      "engineVersion": "1.5.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 31,
+      "name": "動画編集ソフトウェア",
+      "updatedAt": "2024-06-04T13:30:00Z",
+      "updatedBy": "長谷川京子",
+      "engineVersion": "2.2.1",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 32,
+      "name": "家計簿アプリ",
+      "updatedAt": "2024-06-05T09:15:00Z",
+      "updatedBy": "福田充徳",
+      "engineVersion": "1.0.3",
+      "performance": "OFF",
+      "status": "停止済み"
+    },
+    {
+      "id": 33,
+      "name": "ニュースキュレーション",
+      "updatedAt": "2024-06-05T11:45:00Z",
+      "updatedBy": "古川雄輝",
+      "engineVersion": "1.4.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 34,
+      "name": "フィットネストラッカー",
+      "updatedAt": "2024-06-06T07:30:00Z",
+      "updatedBy": "本田翼",
+      "engineVersion": "1.2.5",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 35,
+      "name": "翻訳支援ツール",
+      "updatedAt": "2024-06-06T15:00:00Z",
+      "updatedBy": "宮崎あおい",
+      "engineVersion": "1.8.0",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 36,
+      "name": "コードエディタ拡張",
+      "updatedAt": "2024-06-07T10:20:00Z",
+      "updatedBy": "村上信五",
+      "engineVersion": "1.1.5",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 37,
+      "name": "プレゼンテーション作成",
+      "updatedAt": "2024-06-07T16:50:00Z",
+      "updatedBy": "堀北真希",
+      "engineVersion": "2.0.3",
+      "performance": "ON",
+      "status": "異常停止"
+    },
+    {
+      "id": 38,
+      "name": "仮想通貨ウォレット",
+      "updatedAt": "2024-06-08T11:00:00Z",
+      "updatedBy": "大倉忠義",
+      "engineVersion": "1.7.2",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 39,
+      "name": "オンラインゲームサーバー管理",
+      "updatedAt": "2024-06-08T14:10:00Z",
+      "updatedBy": "安田章大",
+      "engineVersion": "2.3.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 40,
+      "name": "不動産情報検索",
+      "updatedAt": "2024-06-09T09:30:00Z",
+      "updatedBy": "錦戸亮",
+      "engineVersion": "1.6.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 41,
+      "name": "求人情報アグリゲーター",
+      "updatedAt": "2024-06-09T12:45:00Z",
+      "updatedBy": "丸山隆平",
+      "engineVersion": "1.2.8",
+      "performance": "OFF",
+      "status": "停止済み"
+    },
+    {
+      "id": 42,
+      "name": "天気予報API連携",
+      "updatedAt": "2024-06-10T10:00:00Z",
+      "updatedBy": "横山裕",
+      "engineVersion": "1.9.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 43,
+      "name": "SNS投稿スケジューラー",
+      "updatedAt": "2024-06-10T15:30:00Z",
+      "updatedBy": "渋谷すばる",
+      "engineVersion": "1.3.5",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 44,
+      "name": "ブログ記事CMS",
+      "updatedAt": "2024-06-11T11:15:00Z",
+      "updatedBy": "村田充",
+      "engineVersion": "2.1.5",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 45,
+      "name": "学習進捗トラッカー",
+      "updatedAt": "2024-06-11T16:00:00Z",
+      "updatedBy": "神田沙也加",
+      "engineVersion": "1.0.8",
+      "performance": "ON",
+      "status": "異常停止"
+    },
+    {
+      "id": 46,
+      "name": "レストラン予約ボット",
+      "updatedAt": "2024-06-12T09:45:00Z",
+      "updatedBy": "松田聖子",
+      "engineVersion": "1.6.5",
+      "performance": "OFF",
+      "status": "実行中"
+    },
+    {
+      "id": 47,
+      "name": "駐車場空き状況確認",
+      "updatedAt": "2024-06-12T14:20:00Z",
+      "updatedBy": "郷ひろみ",
+      "engineVersion": "1.2.2",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 48,
+      "name": "図書館蔵書検索システム",
+      "updatedAt": "2024-06-13T10:30:00Z",
+      "updatedBy": "西城秀樹",
+      "engineVersion": "1.7.0",
+      "performance": "ON",
+      "status": "実行中"
+    },
+    {
+      "id": 49,
+      "name": "電力使用量モニター",
+      "updatedAt": "2024-06-13T13:00:00Z",
+      "updatedBy": "野口五郎",
+      "engineVersion": "1.4.8",
+      "performance": "OFF",
+      "status": "停止済み"
+    },
+    {
+      "id": 50,
+      "name": "スマートホーム制御ハブ",
+      "updatedAt": "2024-06-14T11:00:00Z",
+      "updatedBy": "沢田研二",
+      "engineVersion": "2.4.0",
+      "performance": "ON",
+      "status": "実行中"
+    }
+  ]
+}

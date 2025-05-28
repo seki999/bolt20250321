@@ -4,12 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"npm:server:db\" \"npm:server:tables\" \"npm:server:upload\"",
+    "dev": "concurrently \"vite\" \"npm:server:db\" \"npm:server:tables\" \"npm:server:upload\" \"npm:server:apps\"",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "server:db": "json-server --watch db.json --routes routes.json --port 3001",
     "server:tables": "json-server --watch tables.json --port 3002",
-    "server:upload": "node upload-server.js"
+    "server:upload": "node upload-server.js",
+    "server:apps": "json-server --watch apps.json --port 3004"
   },
   "dependencies": {
     "vue": "^3.4.38",

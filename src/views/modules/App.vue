@@ -176,7 +176,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import axios from 'axios';
 
 interface App {
   id: number;
@@ -188,46 +189,24 @@ interface App {
   status: '実行中' | '停止済み' | '異常停止';
 }
 
+const APPS_API_URL = 'http://localhost:3004/apps';
+
 const viewMode = ref<'list' | 'grid'>('list');
-const apps = ref<App[]>([
-  {
-    id: 1,
-    name: 'サンプルアプリ1',
-    updatedAt: '2024-03-20T10:30:00Z',
-    updatedBy: '山田太郎',
-    engineVersion: '1.1.0',
-    performance: 'ON',
-    status: '実行中'
-  },
-  {
-    id: 2,
-    name: 'サンプルアプリ2',
-    updatedAt: '2024-03-19T15:45:00Z',
-    updatedBy: '鈴木一郎',
-    engineVersion: '1.0.0',
-    performance: 'OFF',
-    status: '停止済み'
-  },
-  {
-    id: 3,
-    name: 'サンプルアプリ3',
-    updatedAt: '2024-03-18T08:15:00Z',
-    updatedBy: '佐藤花子',
-    engineVersion: '1.1.0',
-    performance: 'ON',
-    status: '異常停止'
-  },
-  // Add more sample data for pagination testing
-  ...Array.from({ length: 20 }, (_, i) => ({
-    id: i + 4,
-    name: `サンプルアプリ${i + 4}`,
-    updatedAt: new Date().toISOString(),
-    updatedBy: '山田太郎',
-    engineVersion: '1.1.0',
-    performance: i % 2 === 0 ? 'ON' : 'OFF' as 'ON' | 'OFF',
-    status: '実行中' as '実行中' | '停止済み' | '異常停止'
-  }))
-]);
+const apps = ref<App[]>([]);
+const showAddModal = ref(false); // 新規アプリモーダルの表示状態 (仮実装)
+
+// Fetch apps from server
+const fetchApps = async () => {
+  try {
+    const response = await axios.get<App[]>(APPS_API_URL);
+    apps.value = response.data;
+  } catch (error) {
+    console.error('アプリデータの取得に失敗しました:', error);
+    alert('アプリデータの取得に失敗しました。');
+  }
+};
+
+onMounted(fetchApps);
 
 // Sorting
 const sortKey = ref<keyof App | ''>('');
@@ -282,7 +261,7 @@ const clearSearch = () => {
 
 // Pagination (List View Only)
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(30);
 const pageSizeOptions = [10, 20, 30, 40, 50];
 
 const totalPages = computed(() => 
@@ -325,14 +304,32 @@ const toggleView = () => {
 
 const editApp = (app: App) => {
   console.log('Edit app:', app);
-  // Implement edit functionality
+  // TODO: 変更機能を実装 (axios.put または axios.patch を使用)
+  // 例:
+  // const updatedAppName = prompt("新しいアプリ名を入力してください:", app.name);
+  // if (updatedAppName && updatedAppName !== app.name) {
+  //   try {
+  //     await axios.patch(`${APPS_API_URL}/${app.id}`, { name: updatedAppName });
+  //     fetchApps(); // データを再取得
+  //   } catch (error) {
+  //     console.error('アプリの変更に失敗しました:', error);
+  //     alert('アプリの変更に失敗しました。');
+  //   }
+  // }
 };
 
-const deleteApp = (id: number) => {
+const deleteApp = async (id: number) => {
   if (confirm('このアプリを削除してもよろしいですか？')) {
-    apps.value = apps.value.filter(app => app.id !== id);
+    try {
+      await axios.delete(`${APPS_API_URL}/${id}`);
+      fetchApps(); // データを再取得してリストを更新
+    } catch (error) {
+      console.error('アプリの削除に失敗しました:', error);
+      alert('アプリの削除に失敗しました。');
+    }
   }
 };
+
 </script>
 
 <style scoped>
