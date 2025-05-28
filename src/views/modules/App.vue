@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+
 <template>
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -26,12 +28,30 @@
       <table class="table">
         <thead>
           <tr>
-            <th>アプリ名</th>
-            <th>更新日時</th>
-            <th>更新者</th>
-            <th>エンジンバージョン</th>
-            <th>パフォーマンス</th>
-            <th>ステータス</th>
+            <th @click="sortBy('name')" style="cursor: pointer">
+              アプリ名
+              <i v-if="sortKey === 'name'" :class="getSortIcon()"></i>
+            </th>
+            <th @click="sortBy('updatedAt')" style="cursor: pointer">
+              更新日時
+              <i v-if="sortKey === 'updatedAt'" :class="getSortIcon()"></i>
+            </th>
+            <th @click="sortBy('updatedBy')" style="cursor: pointer">
+              更新者
+              <i v-if="sortKey === 'updatedBy'" :class="getSortIcon()"></i>
+            </th>
+            <th @click="sortBy('engineVersion')" style="cursor: pointer">
+              エンジンバージョン
+              <i v-if="sortKey === 'engineVersion'" :class="getSortIcon()"></i>
+            </th>
+            <th @click="sortBy('performance')" style="cursor: pointer">
+              パフォーマンス
+              <i v-if="sortKey === 'performance'" :class="getSortIcon()"></i>
+            </th>
+            <th @click="sortBy('status')" style="cursor: pointer">
+              ステータス
+              <i v-if="sortKey === 'status'" :class="getSortIcon()"></i>
+            </th>
             <th>操作</th>
           </tr>
         </thead>
@@ -161,17 +181,51 @@ const apps = ref<App[]>([
   }))
 ]);
 
+// Sorting
+const sortKey = ref<keyof App | ''>('');
+const sortOrder = ref<'asc' | 'desc'>('asc');
+
+const sortBy = (key: keyof App) => {
+  if (sortKey.value === key) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortKey.value = key;
+    sortOrder.value = 'asc';
+  }
+};
+
+const getSortIcon = () => {
+  return sortOrder.value === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill';
+};
+
 // Search functionality
 const searchQuery = ref('');
 
 const filteredApps = computed(() => {
-  if (!searchQuery.value) return apps.value;
+  let result = [...apps.value];
   
-  const query = searchQuery.value.toLowerCase();
-  return apps.value.filter(app => 
-    app.name.toLowerCase().includes(query) ||
-    app.updatedBy.toLowerCase().includes(query)
-  );
+  // Apply search filter
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    result = result.filter(app => 
+      app.name.toLowerCase().includes(query) ||
+      app.updatedBy.toLowerCase().includes(query)
+    );
+  }
+  
+  // Apply sorting
+  if (sortKey.value) {
+    result.sort((a, b) => {
+      const aValue = a[sortKey.value as keyof App];
+      const bValue = b[sortKey.value as keyof App];
+      
+      if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+  
+  return result;
 });
 
 const clearSearch = () => {
@@ -194,7 +248,7 @@ const paginatedApps = computed(() => {
 });
 
 // Watch for changes that should reset pagination
-watch([pageSize, searchQuery], () => {
+watch([pageSize, searchQuery, sortKey, sortOrder], () => {
   currentPage.value = 1;
 });
 
@@ -232,5 +286,14 @@ const deleteApp = (id: number) => {
 <style scoped>
 .badge {
   font-size: 0.875em;
+}
+
+th {
+  white-space: nowrap;
+}
+
+th i {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
 }
 </style>
