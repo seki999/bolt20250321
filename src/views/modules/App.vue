@@ -94,11 +94,47 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Pagination Controls (List View Only) -->
+      <div class="d-flex justify-content-end align-items-center mt-3 gap-4">
+        <div class="text-muted">
+          総計 {{ filteredApps.length }}件
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button 
+            class="btn btn-sm btn-outline-primary" 
+            @click="currentPage--"
+            :disabled="currentPage === 1"
+          >
+            前へ
+          </button>
+          <span class="mx-2">
+            {{ currentPage }} / {{ totalPages }}
+          </span>
+          <button 
+            class="btn btn-sm btn-outline-primary" 
+            @click="currentPage++"
+            :disabled="currentPage === totalPages"
+          >
+            次へ
+          </button>
+          <span class="ms-3">表示件数:</span>
+          <select 
+            class="form-select form-select-sm" 
+            style="width: 80px"
+            v-model="pageSize"
+          >
+            <option v-for="size in pageSizeOptions" :key="size" :value="size">
+              {{ size }}
+            </option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <!-- Grid View -->
     <div v-else class="row g-4">
-      <div v-for="app in paginatedApps" :key="app.id" class="col-md-4">
+      <div v-for="app in filteredApps" :key="app.id" class="col-md-4">
         <div class="card h-100">
           <div class="card-body">
             <h5 class="card-title mb-3">{{ app.name }}</h5>
@@ -134,42 +170,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Pagination Controls -->
-    <div class="d-flex justify-content-end align-items-center mt-3 gap-4">
-      <div class="text-muted">
-        総計 {{ filteredApps.length }}件
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <button 
-          class="btn btn-sm btn-outline-primary" 
-          @click="currentPage--"
-          :disabled="currentPage === 1"
-        >
-          前へ
-        </button>
-        <span class="mx-2">
-          {{ currentPage }} / {{ totalPages }}
-        </span>
-        <button 
-          class="btn btn-sm btn-outline-primary" 
-          @click="currentPage++"
-          :disabled="currentPage === totalPages"
-        >
-          次へ
-        </button>
-        <span class="ms-3">表示件数:</span>
-        <select 
-          class="form-select form-select-sm" 
-          style="width: 80px"
-          v-model="pageSize"
-        >
-          <option v-for="size in pageSizeOptions" :key="size" :value="size">
-            {{ size }}
-          </option>
-        </select>
       </div>
     </div>
   </div>
@@ -280,7 +280,7 @@ const clearSearch = () => {
   searchQuery.value = '';
 };
 
-// Pagination
+// Pagination (List View Only)
 const currentPage = ref(1);
 const pageSize = ref(10);
 const pageSizeOptions = [10, 20, 30, 40, 50];
