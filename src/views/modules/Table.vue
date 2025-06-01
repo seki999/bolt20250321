@@ -175,7 +175,7 @@ interface Table {
 const API_URL = 'http://localhost:3002/tables'; // tables.json 専用サーバーのエンドポイントに変更
 
 const tables = ref<Table[]>([]);
-const selectedTableId = ref<number | null>(null);
+const selectedTableId = ref<number | string | null>(null);
 
 const showCreateTableModal = ref(false);
 const newTableName = ref('');
@@ -280,7 +280,7 @@ const createTable = async () => {
   }
 };
 
-const selectTable = (tableId: number) => {
+const selectTable = (tableId: number | string) => {
   selectedTableId.value = tableId;
 };
 
