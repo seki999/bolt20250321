@@ -1,0 +1,112 @@
+{
+    "physicalWorkspaces": [
+    {
+      "id": 1,
+      "name": "Physical Workspace 1",
+      "createdDate": "2024-03-14T10:00:00Z",
+      "createdBy": "admin",
+      "status": "Active",
+      "logicalWorkspaces": [
+        {
+          "id": 1,
+          "name": "Development Workspace",
+          "belongingTenant": "Acme Corporation",
+          "createdDate": "2024-03-14T10:30:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 5,
+          "runningAppsCount": 2,
+          "status": "Active"
+        },
+        {
+          "id": 2,
+          "name": "Production Workspace",
+          "belongingTenant": "TechStart Solutions",
+          "createdDate": "2024-03-14T11:00:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 10,
+          "runningAppsCount": 5,
+          "status": "Active"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Physical Workspace 2",
+      "createdDate": "2024-03-14T12:00:00Z",
+      "createdBy": "admin",
+      "status": "Active",
+      "logicalWorkspaces": [
+        {
+          "id": 1,
+          "name": "Testing Workspace",
+          "belongingTenant": "Acme Corporation",
+          "createdDate": "2024-03-14T12:30:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 3,
+          "runningAppsCount": 1,
+          "status": "Active"
+        }
+      ]
+    }
+  ],
+  "tenants": [
+    {
+      "id": 1,
+      "tenantName": "Acme Corporation",
+      "companyName": "Acme Inc.",
+      "createdDate": "2024-01-15T08:00:00Z",
+      "createdBy": "admin",
+      "workspaceCount": 3,
+      "workspaceLimit": 5,
+      "userCount": 25,
+      "userLimit": 50,
+      "status": "Active",
+      "logicalWorkspaces": [
+        {
+          "id": 1,
+          "name": "Development",
+          "type": "Dedicated",
+          "createdDate": "2024-01-16T08:00:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 5,
+          "runningAppsCount": 2,
+          "status": "Active"
+        },
+        {
+          "id": 2,
+          "name": "Production",
+          "type": "Dedicated",
+          "createdDate": "2024-01-16T09:00:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 10,
+          "runningAppsCount": 5,
+          "status": "Active"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "tenantName": "TechStart Solutions",
+      "companyName": "TechStart Ltd.",
+      "createdDate": "2024-02-01T09:30:00Z",
+      "createdBy": "admin",
+      "workspaceCount": 2,
+      "workspaceLimit": 3,
+      "userCount": 10,
+      "userLimit": 20,
+      "status": "Active",
+      "logicalWorkspaces": [
+        {
+          "id": 1,
+          "name": "Staging",
+          "type": "Shared",
+          "createdDate": "2024-02-02T10:00:00Z",
+          "createdBy": "admin",
+          "maxSimultaneousApps": 3,
+          "runningAppsCount": 1,
+          "status": "Active"
+        }
+      ]
+    }
+  ]
+}

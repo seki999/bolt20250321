@@ -553,7 +553,7 @@ const loadUsers = async () => {
 
 const loadTenants = async () => {
   try {
-    const response = await axios.get('http://localhost:3001/tenants');
+    const response = await axios.get('http://localhost:3003/tenants');
     tenants.value = response.data;
   } catch (error) {
     console.error('Error loading tenants:', error);
@@ -562,7 +562,7 @@ const loadTenants = async () => {
 
 const loadWorkspaces = async () => {
   try {
-    const response = await axios.get('http://localhost:3001/physicalWorkspaces');
+    const response = await axios.get('http://localhost:3003/physicalWorkspaces');
     physicalWorkspaces.value = response.data;
   } catch (error) {
     console.error('Error loading workspaces:', error);
@@ -609,7 +609,7 @@ const getStatusBadgeClass = (status: string) => {
 const toggleTenantStatus = async (tenant: Tenant) => {
   try {
     const newStatus = tenant.status === 'Active' ? 'Inactive' : 'Active';
-    await axios.patch(`http://localhost:3001/tenants/${tenant.id}`, {
+    await axios.patch(`http://localhost:3003/tenants/${tenant.id}`, {
       status: newStatus
     });
     await loadTenants();
@@ -626,7 +626,7 @@ const editTenant = (tenant: Tenant) => {
 const deleteTenant = async (id: number) => {
   if (confirm('Are you sure you want to delete this tenant?')) {
     try {
-      await axios.delete(`http://localhost:3001/tenants/${id}`);
+      await axios.delete(`http://localhost:3003/tenants/${id}`);
       await loadTenants();
     } catch (error) {
       console.error('Error deleting tenant:', error);
@@ -655,7 +655,7 @@ const editWorkspace = (workspace: PhysicalWorkspace) => {
 const deleteWorkspace = async (id: number) => {
   if (confirm('Are you sure you want to delete this physical workspace?')) {
     try {
-      await axios.delete(`http://localhost:3001/physicalWorkspaces/${id}`);
+      await axios.delete(`http://localhost:3003/physicalWorkspaces/${id}`);
       await loadWorkspaces();
     } catch (error) {
       console.error('Error deleting workspace:', error);
@@ -666,7 +666,7 @@ const deleteWorkspace = async (id: number) => {
 const deleteUser = async (id: number) => {
   if (confirm('Are you sure you want to delete this user?')) {
     try {
-      await axios.delete(`http://localhost:3001/users/${id}`);
+      await axios.delete(`http://localhost:3003/users/${id}`);
       await loadUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -706,7 +706,7 @@ const deleteLogicalWorkspace = async (physicalWorkspaceId: number, logicalWorksp
       const workspace = physicalWorkspaces.value.find(w => w.id === physicalWorkspaceId);
       if (workspace) {
         workspace.logicalWorkspaces = workspace.logicalWorkspaces.filter(l => l.id !== logicalWorkspaceId);
-        await axios.put(`http://localhost:3001/physicalWorkspaces/${physicalWorkspaceId}`, workspace);
+        await axios.put(`http://localhost:3003/physicalWorkspaces/${physicalWorkspaceId}`, workspace);
         await loadWorkspaces();
       }
     } catch (error) {
@@ -718,9 +718,9 @@ const deleteLogicalWorkspace = async (physicalWorkspaceId: number, logicalWorksp
 const handleWorkspaceSubmit = async () => {
   try {
     if (showEditWorkspaceModal.value) {
-      await axios.put(`http://localhost:3001/physicalWorkspaces/${currentWorkspace.value.id}`, currentWorkspace.value);
+      await axios.put(`http://localhost:3003/physicalWorkspaces/${currentWorkspace.value.id}`, currentWorkspace.value);
     } else {
-      await axios.post('http://localhost:3001/physicalWorkspaces', {
+      await axios.post('http://localhost:3003/physicalWorkspaces', {
         ...currentWorkspace.value,
         createdDate: new Date().toISOString(),
         createdBy: 'admin',
@@ -759,7 +759,7 @@ const handleLogicalWorkspaceSubmit = async () => {
           status: currentLogicalWorkspace.value.status!
         });
       }
-      await axios.put(`http://localhost:3001/physicalWorkspaces/${workspace.id}`, workspace);
+      await axios.put(`http://localhost:3003/physicalWorkspaces/${workspace.id}`, workspace);
       await loadWorkspaces();
       closeLogicalModals();
     }

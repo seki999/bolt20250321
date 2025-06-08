@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3003; // 新しいポートを使用します。例: 3003
+const port = 3100; // 新しいポートを使用します。例: 3100
 
 app.use(cors()); // すべてのオリジンからのリクエストを許可します。本番環境ではより厳格なルールを設定する必要があります。
 
@@ -116,7 +116,7 @@ app.delete('/api/files/:filename', async (req, res) => {
 });
 
 // オプション: アップロードされたファイルにURL経由で直接アクセスできるようにしたい場合は、静的ファイルサービスを設定できます
-// 例: http://localhost:3003/UploadFiles/yourfile.pdf
+// 例: http://localhost:3100/UploadFiles/yourfile.pdf
 app.use('/UploadFiles', express.static(uploadDir, {
   setHeaders: (res, path, stat) => {
     // 静的ファイルに対してもContent-TypeでUTF-8を指定することを試みる（通常はmimeタイプから自動だが、ファイル名表示のため）
