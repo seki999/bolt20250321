@@ -313,8 +313,8 @@ const currentBlocker = ref<Partial<MessageBlocker>>({
 const loadData = async () => {
   try {
     const [blockersResponse, configsResponse] = await Promise.all([
-      axios.get('http://localhost:3001/messageBlockers'),
-      axios.get('http://localhost:3001/serverConfigs')
+      axios.get('http://localhost:3005/messageBlockers'),
+      axios.get('http://localhost:3005/serverConfigs')
     ]);
     messageBlockers.value = blockersResponse.data;
     serverConfigs.value = configsResponse.data;
@@ -369,7 +369,7 @@ const editBlocker = (blocker: MessageBlocker) => {
 const deleteBlocker = async (id: number) => {
   if (confirm('Are you sure you want to delete this MQTT blocker?')) {
     try {
-      await axios.delete(`http://localhost:3001/messageBlockers/${id}`);
+      await axios.delete(`http://localhost:3005/messageBlockers/${id}`);
       await loadData();
     } catch (error) {
       console.error('Error deleting blocker:', error);
@@ -380,9 +380,9 @@ const deleteBlocker = async (id: number) => {
 const handleSubmit = async () => {
   try {
     if (showEditModal.value) {
-      await axios.put(`http://localhost:3001/messageBlockers/${currentBlocker.value.id}`, currentBlocker.value);
+      await axios.put(`http://localhost:3005/messageBlockers/${currentBlocker.value.id}`, currentBlocker.value);
     } else {
-      await axios.post('http://localhost:3001/messageBlockers', {
+      await axios.post('http://localhost:3005/messageBlockers', {
         ...currentBlocker.value,
         numberOfTopics: currentBlocker.value.topics?.length || 0
       });

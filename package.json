@@ -4,13 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"npm:server:db\" \"npm:server:tables\" \"npm:server:upload\" \"npm:server:apps\" \"npm:server:resources\"",
+    "dev": "concurrently \"vite\" \"npm:server:db\" \"npm:server:tables\" \"npm:server:upload\" \"npm:server:apps\" \"npm:server:resources\" \"npm:server:messageBlockers\"",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "server:db": "json-server --watch DB/users.json --routes routes.json --port 3001",
     "server:tables": "json-server --watch DB/tables.json --port 3002 --id name",
     "server:resources": "json-server --watch DB/resources.json --port 3003",
     "server:apps": "json-server --watch DB/apps.json --port 3004",
+    "server:messageBlockers": "json-server --watch DB/messageBlockers.json --port 3005",
      "server:upload": "node upload-server.js"
   },
   "dependencies": {
