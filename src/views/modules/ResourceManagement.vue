@@ -674,7 +674,7 @@ const deleteUser = async (id: number) => {
   }
 };
 
-const reissueUserCredentials = async (id: number) => {
+const reissueUserCredentials = async (_id: number) => {
   try {
     // Simulate reissuing credentials
     alert('New credentials have been sent to the user\'s email address.');
