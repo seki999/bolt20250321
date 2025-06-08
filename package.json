@@ -10,7 +10,7 @@
     "server:db": "json-server --watch db.json --routes routes.json --port 3001",
     "server:tables": "json-server --watch tables.json --port 3002 --id name",
     "server:upload": "node upload-server.js",
-    "server:apps": "json-server --watch apps.json --port 3004"
+    "server:apps": "json-server --watch DB/apps.json --port 3004"
   },
   "dependencies": {
     "vue": "^3.4.38",
