@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="col-md-8">
-        <div v-if="selectedTable" class="card">
+        <div v-if="selectedTable" class="card" style="width: 600px;">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">テーブル詳細: {{ selectedTable.name }}</h5> <!-- Table Details: -->
           </div>
@@ -63,7 +63,7 @@
             <div v-else class="table-responsive">
               <table class="table table-striped table-bordered">
                 <thead>
-                  <tr>
+                   <tr style="width: 300%;">
                     <th v-for="field in selectedTable.fields" :key="field.name">{{ field.name }}</th>
                     <th>操作</th> <!-- Actions -->
                   </tr>
@@ -87,9 +87,9 @@
           </div>
         </div>
         <div v-else class="card">
-          <div class="card-body">
+          <div class="card-body"  style="width: 600px;">
             <h5 class="card-title">テーブル詳細</h5> <!-- Table Details -->
-            <p class="card-text">左側からテーブルを選択するか、新規テーブルを作成して詳細を表示してください。</p> <!-- Please select a table from the left, or create a new one to see details. -->
+            <p class="card-text">左側からテーブルを選択するか、新規テーブルを作成して詳細を<br>表示してください。</p> <!-- Please select a table from the left, or create a new one to see details. -->
           </div>
         </div>
       </div>
@@ -175,7 +175,7 @@ interface Table {
 const API_URL = 'http://localhost:3002/tables'; // tables.json 専用サーバーのエンドポイントに変更
 
 const tables = ref<Table[]>([]);
-const selectedTableId = ref<number | null>(null);
+const selectedTableId = ref<number | string | null>(null);
 
 const showCreateTableModal = ref(false);
 const newTableName = ref('');
@@ -280,7 +280,7 @@ const createTable = async () => {
   }
 };
 
-const selectTable = (tableId: number) => {
+const selectTable = (tableId: number | string) => {
   selectedTableId.value = tableId;
 };
 
