@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"npm:server:db\" \"npm:server:tables\" \"npm:server:upload\" \"npm:server:apps\" \"npm:server:resources\" \"npm:server:messageBlockers\"",
+    "dev": "concurrently \"vite --open\" \"npm:server:db\" \"npm:server:tables\" \"npm:server:upload\" \"npm:server:apps\" \"npm:server:resources\" \"npm:server:messageBlockers\"",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "server:db": "json-server --watch DB/users.json --routes routes.json --port 3001",
