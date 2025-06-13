@@ -303,8 +303,9 @@ const addDataToTable = async () => {
   const updatedData = [...currentTable.data, rowToAdd];
 
   try {
-    const response = await axios.put<Table>(`${API_URL}/${currentTable.id}`, { ...currentTable, data: updatedData });
-    const tableIndex = tables.value.findIndex(t => t.id === currentTable.id);
+    // Use currentTable.name for the API endpoint, as json-server uses 'name' as ID
+    const response = await axios.put<Table>(`${API_URL}/${currentTable.name}`, { ...currentTable, data: updatedData });
+    const tableIndex = tables.value.findIndex(t => t.id === currentTable.id); // Local find by id is still okay
     if (tableIndex !== -1) {
       tables.value[tableIndex] = response.data;
     }
@@ -325,8 +326,8 @@ const addDataToTable = async () => {
 const confirmDeleteTable = async (tableId: number | string) => {
   const tableToDelete = tables.value.find(t => t.id === tableId);
   if (tableToDelete && confirm(`テーブル「${tableToDelete.name}」を削除してもよろしいですか？この操作は元に戻せません。`)) { // Are you sure you want to delete table "..."? This action cannot be undone.
-    try {
-      await axios.delete(`${API_URL}/${tableId}`);
+    try { // Use tableToDelete.name for the API endpoint, as json-server uses 'name' as ID
+      await axios.delete(`${API_URL}/${tableToDelete.name}`);
       tables.value = tables.value.filter(t => t.id !== tableId);
       if (selectedTableId.value === tableId) {
         selectedTableId.value = null;
@@ -348,8 +349,9 @@ const deleteDataRow = async (rowIndex: number) => {
     const updatedData = [...currentTable.data];
     updatedData.splice(rowIndex, 1);
     try {
-      const response = await axios.put<Table>(`${API_URL}/${currentTable.id}`, { ...currentTable, data: updatedData });
-      const tableIndex = tables.value.findIndex(t => t.id === currentTable.id);
+      // Use currentTable.name for the API endpoint, as json-server uses 'name' as ID
+      const response = await axios.put<Table>(`${API_URL}/${currentTable.name}`, { ...currentTable, data: updatedData });
+      const tableIndex = tables.value.findIndex(t => t.id === currentTable.id); // Local find by id is still okay
       if (tableIndex !== -1) {
         tables.value[tableIndex] = response.data;
       }
