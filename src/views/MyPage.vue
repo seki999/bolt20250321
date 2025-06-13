@@ -11,18 +11,32 @@
               id="workspaceDropdown"
               data-bs-toggle="dropdown"
               aria-expanded="false"
+              @click="showDropdown = !showDropdown"
             >
-              {{ currentWorkspace || 'Select Workspace' }}
+              {{ currentWorkspaceLabel }}
             </button>
-            <ul class="dropdown-menu" aria-labelledby="workspaceDropdown">
-              <li v-for="workspace in workspaces" :key="workspace">
-                <a
-                  class="dropdown-item"
-                  href="#"
-                  @click="selectWorkspace(workspace)"
-                >
-                  {{ workspace }}
-                </a>
+            <ul
+              class="dropdown-menu"
+              :class="{ show: showDropdown }"
+              aria-labelledby="workspaceDropdown"
+              style="max-height:300px;overflow:auto;"
+            >
+              <li v-for="tenant in tenants" :key="tenant.tenantName">
+                <h6 class="dropdown-header">{{ tenant.tenantName }}</h6>
+                <ul class="list-unstyled mb-1">
+                  <li
+                    v-for="ws in tenant.logicalWorkspaces"
+                    :key="ws.name"
+                  >
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      @click.prevent="selectWorkspace(tenant.tenantName, ws.name)"
+                    >
+                      {{ ws.name }}
+                    </a>
+                  </li>
+                </ul>
               </li>
             </ul>
           </div>
@@ -86,20 +100,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store/user';
+import axios from 'axios';
 
 const router = useRouter();
 const userStore = useUserStore();
 
 const showUserInfo = ref(false);
 const user = computed(() => userStore.user);
-const currentWorkspace = computed(() => userStore.currentWorkspace);
-const workspaces = computed(() => userStore.workspaces);
-
-// Sample workspaces - replace with API call
-userStore.setWorkspaces(['Workspace 1', 'Workspace 2', 'Workspace 3']);
 
 const menuItems = [
   { name: 'App', path: '/mypage/app' },
@@ -111,12 +121,47 @@ const menuItems = [
   { name: 'Migration', path: '/mypage/migration' }
 ];
 
+// tenantName -> logicalWorkspaces
+const tenants = ref<{ tenantName: string, logicalWorkspaces: { name: string }[] }[]>([]);
+const selectedWorkspace = ref('');
+const showDropdown = ref(false);
+
+const currentWorkspaceLabel = computed(() => {
+  if (!selectedWorkspace.value) return 'ワークスペースを選択';
+  const [tenantName, wsName] = selectedWorkspace.value.split('::');
+  return `${tenantName} / ${wsName}`;
+});
+
+onMounted(async () => {
+  const res = await axios.get('http://localhost:3003/tenants');
+  tenants.value = res.data;
+
+  const workspaceList = res.data.map((tenant: any) => ({
+    tenantName: tenant.tenantName,
+    logicalWorkspaces: tenant.logicalWorkspaces.map((ws: any) => ({ name: ws.name }))
+  }));
+
+userStore.setWorkspaces(workspaceList);
+
+  if (
+    tenants.value.length > 0 &&
+    tenants.value[0].logicalWorkspaces.length > 0
+  ) {
+    selectedWorkspace.value = `${tenants.value[0].tenantName}::${tenants.value[0].logicalWorkspaces[0].name}`;
+  }
+});
+
+watch(selectedWorkspace, (val) => {
+  userStore.currentWorkspace = val;
+});
+
 const toggleUserInfo = () => {
   showUserInfo.value = !showUserInfo.value;
 };
 
-const selectWorkspace = (workspace: string) => {
-  userStore.setWorkspace(workspace);
+const selectWorkspace = (tenantName: string, wsName: string) => {
+  selectedWorkspace.value = `${tenantName}::${wsName}`;
+  showDropdown.value = false;
 };
 
 const formatDate = (date: string | undefined) => {
@@ -143,4 +188,5 @@ const goToAdministrationSettings = () => {
   router.push('/mypage/administration-settings');
   showUserInfo.value = false;
 };
+
 </script>
