@@ -246,20 +246,21 @@ const removeField = (index: number) => {
 
 const createTable = async () => {
   if (!newTableName.value.trim()) {
-    alert('テーブル名を入力してください。'); // Table name cannot be empty!
+    alert('テーブル名を入力してください。');
     return;
   }
   if (newTableFields.value.some(f => !f.name.trim())) {
-    alert('すべてのフィールド名を入力してください。'); // All field names must not be empty!
+    alert('すべてのフィールド名を入力してください。');
     return;
   }
   const fieldNames = newTableFields.value.map(f => f.name.trim());
   if (new Set(fieldNames).size !== fieldNames.length) {
-    alert('フィールド名は重複できません。'); // Field names must be unique!
+    alert('フィールド名は重複できません。');
     return;
   }
+  // 追加: テーブル名重複チェック
   if (tables.value.some(t => t.name === newTableName.value.trim())) {
-    alert('テーブル名は既に存在します。'); // Table name already exists!
+    alert('同じ名前のテーブルが既に存在します。');
     return;
   }
 
@@ -273,7 +274,7 @@ const createTable = async () => {
     const response = await axios.post<Table>(API_URL, newTableData);
     tables.value.push(response.data);
     closeCreateTableModal();
-    selectTable(response.data.id);
+    selectedTableId.value = response.data.id;
   } catch (error) {
     console.error('テーブルの作成に失敗しました:', error);
     alert('テーブルの作成に失敗しました。');
