@@ -14,15 +14,15 @@
           <a
             href="#"
             v-for="table in tables"
-            :key="table.id"
+            :key="table.name"
             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            :class="{ active: table.id === selectedTableId }"
-            @click.prevent="selectTable(table.id)"
+            :class="{ active: table.name === selectedTableName }"
+            @click.prevent="selectTable(table.name)"
           >
             {{ table.name }}
             <button
               class="btn btn-sm btn-outline-danger"
-              @click.stop="confirmDeleteTable(table.id)"
+              @click.stop="confirmDeleteTable(table.name)"
               title="テーブルを削除"
             >
               <i class="bi bi-trash"></i> <!-- Assuming Bootstrap Icons are available -->
@@ -175,7 +175,7 @@ interface Table {
 const API_URL = 'http://localhost:3002/tables'; // tables.json 専用サーバーのエンドポイントに変更
 
 const tables = ref<Table[]>([]);
-const selectedTableId = ref<number | string | null>(null);
+const selectedTableName = ref<number | string | null>(null);
 
 const showCreateTableModal = ref(false);
 const newTableName = ref('');
@@ -185,7 +185,7 @@ const newTableFields = ref<Field[]>([{ name: '', type: 'text' }]);
 const newRowData = ref<Record<string, any>>({});
 
 const selectedTable = computed(() => {
-  return tables.value.find(t => t.id === selectedTableId.value) || null;
+  return tables.value.find(t => t.name === selectedTableName.value) || null;
 });
 
 // --- API連携のための関数 ---
@@ -193,9 +193,9 @@ const fetchTables = async () => {
   try {
     const response = await axios.get<Table[]>(API_URL);
     tables.value = response.data;
-    if (tables.value.length > 0 && !selectedTableId.value) {
+    if (tables.value.length > 0 && !selectedTableName.value) {
       // Optionally select the first table if none is selected
-      // selectTable(tables.value[0].id);
+      // selectTable(tables.value[0].name);
     }
   } catch (error) {
     console.error('テーブルの読み込みに失敗しました:', error);
@@ -274,15 +274,15 @@ const createTable = async () => {
     const response = await axios.post<Table>(API_URL, newTableData);
     tables.value.push(response.data);
     closeCreateTableModal();
-    selectedTableId.value = response.data.id;
+    selectedTableName.value = response.data.name;
   } catch (error) {
     console.error('テーブルの作成に失敗しました:', error);
     alert('テーブルの作成に失敗しました。');
   }
 };
 
-const selectTable = (tableId: number | string) => {
-  selectedTableId.value = tableId;
+const selectTable = (tableName: number | string) => {
+  selectedTableName.value = tableName;
 };
 
 const addDataToTable = async () => {
@@ -306,7 +306,7 @@ const addDataToTable = async () => {
   try {
     // Use currentTable.name for the API endpoint, as json-server uses 'name' as ID
     const response = await axios.put<Table>(`${API_URL}/${currentTable.name}`, { ...currentTable, data: updatedData });
-    const tableIndex = tables.value.findIndex(t => t.id === currentTable.id); // Local find by id is still okay
+    const tableIndex = tables.value.findIndex(t => t.name === currentTable.name); // Local find by id is still okay
     if (tableIndex !== -1) {
       tables.value[tableIndex] = response.data;
     }
@@ -324,14 +324,14 @@ const addDataToTable = async () => {
   }
 };
 
-const confirmDeleteTable = async (tableId: number | string) => {
-  const tableToDelete = tables.value.find(t => t.id === tableId);
+const confirmDeleteTable = async (tableName: number | string) => {
+  const tableToDelete = tables.value.find(t => t.name === tableName);
   if (tableToDelete && confirm(`テーブル「${tableToDelete.name}」を削除してもよろしいですか？この操作は元に戻せません。`)) { // Are you sure you want to delete table "..."? This action cannot be undone.
     try { // Use tableToDelete.name for the API endpoint, as json-server uses 'name' as ID
       await axios.delete(`${API_URL}/${tableToDelete.name}`);
-      tables.value = tables.value.filter(t => t.id !== tableId);
-      if (selectedTableId.value === tableId) {
-        selectedTableId.value = null;
+      tables.value = tables.value.filter(t => t.name !== tableName);
+      if (selectedTableName.value === tableName) {
+        selectedTableName.value = null;
       }
     } catch (error) {
       console.error('テーブルの削除に失敗しました:', error);
@@ -352,7 +352,7 @@ const deleteDataRow = async (rowIndex: number) => {
     try {
       // Use currentTable.name for the API endpoint, as json-server uses 'name' as ID
       const response = await axios.put<Table>(`${API_URL}/${currentTable.name}`, { ...currentTable, data: updatedData });
-      const tableIndex = tables.value.findIndex(t => t.id === currentTable.id); // Local find by id is still okay
+      const tableIndex = tables.value.findIndex(t => t.name === currentTable.name); // Local find by id is still okay
       if (tableIndex !== -1) {
         tables.value[tableIndex] = response.data;
       }
