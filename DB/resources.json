@@ -51,7 +51,7 @@
   ],
   "tenants": [
     {
-      "id": 1,
+      "tenantId": 1,
       "tenantName": "通信株式会社",
       "companyName": "Acme Inc.",
       "createdDate": "2024-01-15T08:00:00Z",
@@ -63,8 +63,8 @@
       "status": "Active",
       "logicalWorkspaces": [
         {
-          "id": 1,
-          "name": "東京検証WS",
+          "workspaceId": 1,
+          "workspaceName": "東京検証WS",
           "type": "Dedicated",
           "createdDate": "2024-01-16T08:00:00Z",
           "createdBy": "admin",
@@ -73,8 +73,8 @@
           "status": "Active"
         },
         {
-          "id": 2,
-          "name": "回帰テストWS",
+          "workspaceId": 2,
+          "workspaceName": "回帰テストWS",
           "type": "Dedicated",
           "createdDate": "2024-01-16T09:00:00Z",
           "createdBy": "admin",
@@ -85,7 +85,7 @@
       ]
     },
     {
-      "id": 2,
+      "tenantId": 2,
       "tenantName": "開発株式会社",
       "companyName": "TechStart Ltd.",
       "createdDate": "2024-02-01T09:30:00Z",
@@ -97,8 +97,8 @@
       "status": "Active",
       "logicalWorkspaces": [
         {
-          "id": 1,
-          "name": "共同開発WS",
+          "workspaceId": 1,
+          "workspaceName": "共同開発WS",
           "type": "Shared",
           "createdDate": "2024-02-02T10:00:00Z",
           "createdBy": "admin",

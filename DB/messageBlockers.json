@@ -1,6 +1,8 @@
 {
   "messageBlockers": [
     {
+      "tenantId" : 1,
+      "workspaceId": 1,
       "id": 1,
       "username": "mqttuser1",
       "password": "password123",

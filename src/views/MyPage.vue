@@ -26,14 +26,14 @@
                 <ul class="list-unstyled mb-1">
                   <li
                     v-for="ws in tenant.logicalWorkspaces"
-                    :key="ws.name"
+                    :key="ws.workspaceId"
                   >
                     <a
                       class="dropdown-item"
                       href="#"
-                      @click.prevent="selectWorkspace(tenant.tenantName, ws.name)"
+                      @click.prevent="selectWorkspace(tenant.tenantName, ws.workspaceName,tenant.tenantId, ws.workspaceId)"
                     >
-                      {{ ws.name }}
+                      {{ ws.workspaceName }}
                     </a>
                   </li>
                 </ul>
@@ -122,7 +122,16 @@ const menuItems = [
 ];
 
 // tenantName -> logicalWorkspaces
-const tenants = ref<{ tenantName: string, logicalWorkspaces: { name: string }[] }[]>([]);
+const tenants = ref<
+  {
+    tenantId: number,
+    tenantName: string,
+    logicalWorkspaces: {
+      workspaceId: number,
+      workspaceName: string,
+    }[]
+  }[]
+>([]);
 const selectedWorkspace = ref('');
 const showDropdown = ref(false);
 
@@ -134,24 +143,40 @@ const currentWorkspaceLabel = computed(() => {
 
 onMounted(async () => {
   const res = await axios.get('http://localhost:3003/tenants');
-  tenants.value = res.data;
-
-  const workspaceList = res.data.map((tenant: any) => ({
+  tenants.value = res.data.map((tenant: any) => ({
+    tenantId: tenant.tenantId,
     tenantName: tenant.tenantName,
-    logicalWorkspaces: tenant.logicalWorkspaces.map((ws: any) => ({ name: ws.name }))
+    logicalWorkspaces: tenant.logicalWorkspaces.map((ws: any) => ({
+      workspaceId: ws.workspaceId,
+      workspaceName: ws.workspaceName
+    }))
   }));
 
+  const workspaceList = tenants.value.flatMap((tenant: any) =>
+  tenant.logicalWorkspaces.map((ws: any) => ({
+    tenantsId: tenant.id,
+    tenantName: tenant.tenantName,
+    logicalWorkspaceId: ws.id,
+    name: ws.name
+  }))
+);
+//console.log(JSON.stringify(workspaceList, null, '\t'));
 userStore.setWorkspaces(workspaceList);
+//userStore.setWorkspace()
 
   if (
-    tenants.value.length > 0 &&
-    tenants.value[0].logicalWorkspaces.length > 0
+    workspaceList.length > 0 &&
+    workspaceList[0].logicalWorkspaces &&
+    workspaceList[0].logicalWorkspaces.length > 0
   ) {
-    selectedWorkspace.value = `${tenants.value[0].tenantName}::${tenants.value[0].logicalWorkspaces[0].name}`;
+    const tenantId = workspaceList[0].id; // 或 workspaceList[0].tenantsId
+    const workspaceId = workspaceList[0].logicalWorkspaces[0].id; // 或 logicalWorkspaceId
+    userStore.currentTenantIdWorkspaceId = `${tenantId}::${workspaceId}`;
   }
 });
 
 watch(selectedWorkspace, (val) => {
+  //alert("watch selectedWorkspace is  "+ val)
   userStore.currentWorkspace = val;
 });
 
@@ -159,8 +184,10 @@ const toggleUserInfo = () => {
   showUserInfo.value = !showUserInfo.value;
 };
 
-const selectWorkspace = (tenantName: string, wsName: string) => {
-  selectedWorkspace.value = `${tenantName}::${wsName}`;
+const selectWorkspace = (tenantName: string, workspaceName: string,tenantId: number, workspaceId: number) => {
+  selectedWorkspace.value = `${tenantName}::${workspaceName}`;
+  userStore.currentTenantIdWorkspaceId = `${tenantId}::${workspaceId}`;
+  //alert("selectWorkspace currentTenantIdWorkspaceId is  "+ userStore.currentTenantIdWorkspaceId)
   showDropdown.value = false;
 };
 

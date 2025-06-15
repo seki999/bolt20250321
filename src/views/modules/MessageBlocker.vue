@@ -274,9 +274,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
-
+import { useUserStore } from '../../store/user';
+const userStore = useUserStore();
 interface Topic {
   id?: number;
   name: string;
@@ -322,6 +323,14 @@ const loadData = async () => {
     console.error('Error loading data:', error);
   }
 };
+
+// userStore.currentTenantIdWorkspaceId の変更を監視し、変更があった場合にデータを再取得する
+watch(
+  () => userStore.currentTenantIdWorkspaceId,
+  () => {
+    loadData();// 変更時に情報を再取得
+  }
+);
 
 onMounted(() => {
   loadData();

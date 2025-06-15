@@ -155,9 +155,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import axios from 'axios'; // axios をインポート
-
-// Assuming Bootstrap Icons are available, if not, text can be used for buttons.
-// 例: <i class="bi bi-trash"></i> は "削除" に置き換え可能です
+import { useUserStore } from '../../store/user'; // ユーザーストアをインポート
+const userStore = useUserStore();
 
 interface Field {
   name: string;
@@ -165,6 +164,8 @@ interface Field {
 }
 
 interface Table {
+  tenantId: number; // テナントID
+  workspaceId: number; // ワークスペースID
   id: number | string; // バックエンドが生成するIDは文字列の場合もあるため string も許容
   name: string;
   fields: Field[];
@@ -190,9 +191,25 @@ const selectedTable = computed(() => {
 
 // --- API連携のための関数 ---
 const fetchTables = async () => {
+  //alert("table "+userStore.currentTenantIdWorkspaceId);
+  
   try {
+    const idStr = userStore.currentTenantIdWorkspaceId || '';
+    const parts = idStr.split('::');
+    //alert("parts "+parts);
+    const tenantId = parts[0] || '';
+    //alert("tenantId "+tenantId);
+    const workspaceId = parts[1] || '';
+    //alert("workspaceId "+workspaceId);
+
+    console.log("tenantId: " + tenantId + ", workspaceId: " + workspaceId);
     const response = await axios.get<Table[]>(API_URL);
-    tables.value = response.data;
+    console.log("1111  "+JSON.stringify(response.data, null, '\t'));
+    tables.value = response.data.filter(
+
+      table => table.tenantId === Number(tenantId) && table.workspaceId === Number(workspaceId)
+    );
+    console.log("2222  "+JSON.stringify(tables.value, null, '\t'));
     if (tables.value.length > 0 && !selectedTableName.value) {
       // Optionally select the first table if none is selected
       // selectTable(tables.value[0].name);
@@ -218,6 +235,14 @@ watch(selectedTable, (currentTable) => {
     newRowData.value = {};
   }
 }, { immediate: true });
+
+// userStore.currentTenantIdWorkspaceId の変更を監視し、変更があった場合にテーブルデータを再取得する
+watch(
+  () => userStore.currentTenantIdWorkspaceId,
+  () => {
+    fetchTables();// 変更時にテーブル情報を再取得
+  }
+);
 
 // コンポーネントマウント時にテーブルを読み込む
 onMounted(() => {
@@ -362,7 +387,6 @@ const deleteDataRow = async (rowIndex: number) => {
     }
   }
 };
-
 </script>
 
 <style scoped>

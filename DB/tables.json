@@ -1,6 +1,8 @@
 {
   "tables": [
     {
+      "tenantId" : 1,
+      "workspaceId": 1,
       "name": "table1",
       "fields": [
         {
