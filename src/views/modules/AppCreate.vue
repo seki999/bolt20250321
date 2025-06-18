@@ -84,10 +84,12 @@
     </aside>
     <!-- 中央エリア -->
     <main class="center-area">
+        11111
       <!-- ここは空白 -->
     </main>
     <!-- 右側：コンポーネント詳細設定 -->
     <aside class="detail-area">
+        22222
       <!-- ここは空白 -->
     </aside>
   </div>
@@ -124,7 +126,8 @@ const componentChecks = ref({
 <style scoped>
 .main-layout {
   display: flex;
-  height: 100vh;
+  min-height: 100vh; /* 或 height: 100vh; */
+  box-sizing: border-box;
 }
 .sidebar {
   width: 260px;
@@ -210,13 +213,24 @@ const componentChecks = ref({
   padding: 8px;
 }
 .center-area {
-  flex: 1;
   background: #fff;
+  width: 100vw;
+  min-height: 100vh;
+  box-sizing: border-box;
+  margin-right: 25vw; /* detail-areaの幅と同じだけ右にマージンを追加 */
 }
 .detail-area {
-  width: 320px;
+  position: fixed;
+  top: 3%;
+  right: 20px;
+  height: 70vh;
+  width: 25vw;
   background: #f8f9fa;
-  border-left: 1px solid #ddd;
+  /* 边框を削除 */
+  border: none;
+  box-sizing: border-box;
+  z-index: 100;
+  overflow-y: auto;
 }
 .bottom-panel-content {
   display: flex;
