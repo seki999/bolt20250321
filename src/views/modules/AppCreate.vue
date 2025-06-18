@@ -31,9 +31,9 @@
       </div>
       <!-- 下部の隠せるボックス -->
       <div class="bottom-panel" :class="{ hidden: hideBottomPanel, expanded: isExpanded }">
-        <div class="panel-tabs-header">
-          <span style="cursor:pointer;" @click="isExpanded = !isExpanded">▼</span>
-          <ul class="tab-list">
+        <div class="panel-tabs-header" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px 0 12px;">
+          <span style="cursor:pointer;" @click="hideBottomPanel = !hideBottomPanel">▼</span>
+          <ul class="tab-list" style="display: flex; gap: 12px; margin: 0; padding: 0; list-style: none;">
             <li :class="{ active: activeTab === 'console' }" @click="activeTab = 'console'">コンソール</li>
             <li :class="{ active: activeTab === 'data' }" @click="activeTab = 'data'">データ</li>
             <li :class="{ active: activeTab === 'log' }" @click="activeTab = 'log'">ログ</li>
@@ -74,7 +74,12 @@
             <div v-if="activeTab === 'data'"></div>
             <div v-if="activeTab === 'log'"></div>
           </div>
+        <div class="tab-content" v-if="!hideBottomPanel">
+          <div v-if="activeTab === 'console'"></div>
+          <div v-if="activeTab === 'data'"></div>
+          <div v-if="activeTab === 'log'"></div>
         </div>
+      </div>
       </div>
     </aside>
     <!-- 中央エリア -->
