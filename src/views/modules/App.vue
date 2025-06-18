@@ -25,7 +25,7 @@
         >
           <i class="bi" :class="viewMode === 'list' ? 'bi-grid' : 'bi-list'"></i>
         </button>
-        <button class="btn btn-primary" @click="showAddModal = true">新規アプリ</button>
+        <button class="btn btn-primary" @click="goToAppCreate">新規アプリ</button>
       </div>
     </div>
 
@@ -178,6 +178,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '../../store/user';
+const userStore = useUserStore();
 
 interface App {
   id: number;
@@ -205,6 +208,14 @@ const fetchApps = async () => {
     alert('アプリデータの取得に失敗しました。');
   }
 };
+
+// userStore.currentTenantIdWorkspaceId の変更を監視し、変更があった場合にテーブルデータを再取得する
+watch(
+  () => userStore.currentTenantIdWorkspaceId,
+  () => {
+    fetchApps();// 変更時にテーブル情報を再取得
+  }
+);
 
 onMounted(fetchApps);
 
@@ -330,6 +341,11 @@ const deleteApp = async (id: number) => {
   }
 };
 
+const router = useRouter();
+
+function goToAppCreate() {
+  router.push({ name: 'AppCreate' });
+}
 </script>
 
 <style scoped>

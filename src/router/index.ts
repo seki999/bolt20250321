@@ -4,6 +4,7 @@ import MyPage from '../views/MyPage.vue';
 import PersonalSettings from '../views/modules/PersonalSettings.vue';
 import ResourceManagement from '../views/modules/ResourceManagement.vue';
 import AdministrationSettings from '../views/modules/AdministrationSettings.vue';
+//import AppCreate from '../views/modules/AppCreate.vue';
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
         path: 'app',
         name: 'App',
         component: () => import('../views/modules/App.vue')
+      },
+      {
+        path: 'app-create',
+        name: 'AppCreate',
+        component: () => import('../views/modules/AppCreate.vue')
       },
       {
         path: 'table',
