@@ -5,29 +5,42 @@
       <div class="component-section">
         <h5>データ入力</h5>
         <div class="component-list">
-          <div class="component-box">Kafka</div>
-          <div class="component-box">MQTT</div>
-          <div class="component-box">API呼び出し</div>
-          <div class="component-box">gRPC Server Streaming</div>
-          <div class="component-box">スケジュール</div>
+          <!-- 组件拖拽区域 -->
+          <div
+            class="component-box"
+            v-for="comp in inputComponents"
+            :key="comp"
+            @mousedown="startDrag(comp, $event)"
+          >
+            {{ comp }}
+          </div>
         </div>
       </div>
       <div class="component-section">
         <h5>データ処理</h5>
         <div class="component-list">
-          <div class="component-box">コード実行</div>
-          <div class="component-box">データ結合</div>
-          <div class="component-box">フィルター</div>
-          <div class="component-box">配列を要素ごとに取り出す</div>
+          <div
+            class="component-box"
+            v-for="comp in processComponents"
+            :key="comp"
+            @mousedown="startDrag(comp, $event)"
+          >
+            {{ comp }}
+          </div>
         </div>
       </div>
       <div class="component-section">
         <h5>データ出力</h5>
         <div class="component-list">
-          <div class="component-box">Kafka</div>
-          <div class="component-box">MQTT</div>
-          <div class="component-box">HTTP</div>
+          <div
+            class="component-box"
+            v-for="comp in outputComponents"
+            :key="comp"
+            @mousedown="startDrag(comp, $event)"
+          >
+            {{ comp }}
         </div>
+      </div>
       </div>
       <!-- 下部の隠せるボックス -->
       <div class="bottom-panel" :class="{ hidden: hideBottomPanel, expanded: isExpanded }">
@@ -83,9 +96,29 @@
       </div>
     </aside>
     <!-- 中央エリア -->
-    <main class="center-area">
-        11111
-      <!-- ここは空白 -->
+    <main
+      class="center-area"
+      ref="centerArea"
+      @mousemove="onMouseMove"
+      @mouseup="onMouseUp"
+    >
+      <div
+        v-for="item in droppedItems"
+        :key="item.id"
+        class="draggable-item"
+        :ref="'draggable-' + item.id"
+        :style="{ left: item.x + 'px', top: item.y + 'px', position: 'absolute' }"
+      >
+        {{ item.name }}
+      </div>
+      <!-- 拖拽预览 -->
+      <div
+        v-if="dragPreview"
+        class="draggable-item preview"
+        :style="{ left: dragPreview.x + 'px', top: dragPreview.y + 'px', position: 'fixed', pointerEvents: 'none', opacity: 0.7 }"
+      >
+        {{ dragPreview.name }}
+      </div>
     </main>
     <!-- 右側：コンポーネント詳細設定 -->
     <aside class="detail-area">
@@ -97,7 +130,9 @@
 
 <script setup lang="ts">
 // サイドバー下部パネルの表示/非表示状態
-import { ref } from 'vue'
+import { ref, onMounted, nextTick, getCurrentInstance, watch } from 'vue'
+import interact from 'interactjs'
+
 const hideBottomPanel = ref(false)
 const isExpanded = ref(false)
 const activeTab = ref('console')
@@ -121,7 +156,134 @@ const componentChecks = ref({
   code: false,
   api: false
 })
+
+// サンプルデータ
+const inputComponents = [
+  'Kafka',
+  'MQTT',
+  'API呼び出し',
+  'gRPC Server Streaming',
+  'スケジュール'
+];
+const processComponents = [
+  'コード実行',
+  'データ結合',
+  'フィルター',
+  '配列を要素ごとに取り出す'
+];
+const outputComponents = [
+  'Kafka',
+  'MQTT',
+  'HTTP'
+];
+// ドラッグ中のコンポーネント
+let dragComp: string | null = null
+
+// ドロップされたアイテムリスト
+const droppedItems = ref<{ id: number, name: string, x: number, y: number }[]>([])
+
+// ドラッグ中の状態
+let dragging = false
+const dragPreview = ref<{ name: string, x: number, y: number } | null>(null)
+
+// ドラッグ開始
+function startDrag(comp: string, event: MouseEvent) {
+  dragging = true
+  dragComp = comp
+  dragPreview.value = { name: comp, x: event.clientX, y: event.clientY }
+  window.addEventListener('mousemove', onMouseMove)
+  window.addEventListener('mouseup', onMouseUp)
+}
+
+// ドラッグ中
+function onMouseMove(event: MouseEvent) {
+  if (dragging && dragPreview.value) {
+    dragPreview.value.x = event.clientX
+    dragPreview.value.y = event.clientY
+  }
+}
+
+// ドラッグ終了
+function onMouseUp(event: MouseEvent) {
+  if (dragging && dragComp && dragPreview.value) {
+    // 中央エリア内か判定
+    const centerArea = document.querySelector('.center-area') as HTMLElement
+    const rect = centerArea.getBoundingClientRect()
+    if (
+      event.clientX >= rect.left &&
+      event.clientX <= rect.right &&
+      event.clientY >= rect.top &&
+      event.clientY <= rect.bottom
+    ) {
+      droppedItems.value.push({
+        id: Date.now() + Math.random(),
+        name: dragComp,
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      })
+      nextTick(() => {
+        droppedItems.value.forEach(item => {
+          makeDraggable(item.id)
+        })
+      })
+    }
+  }
+  dragging = false
+  dragComp = null
+  dragPreview.value = null
+  window.removeEventListener('mousemove', onMouseMove)
+  window.removeEventListener('mouseup', onMouseUp)
+}
+
+// interact.jsで中央エリア内のアイテムを自由に動かす
+const draggableRefs = new Map<number, HTMLElement>()
+function setDraggableRef(el: HTMLElement | null, id: number) {
+  if (el) {
+    draggableRefs.set(id, el)
+    makeDraggable(id)
+  }
+}
+function makeDraggable(id: number) {
+  const el = draggableRefs.get(id)
+  if (!el) return
+  interact(el).draggable({
+    listeners: {
+      move(event) {
+        const item = droppedItems.value.find(i => i.id === id)
+        if (item) {
+          item.x += event.dx
+          item.y += event.dy
+          el.style.left = item.x + 'px'
+          el.style.top = item.y + 'px'
+        }
+      }
+    }
+  })
+}
+
+const proxy = getCurrentInstance()?.proxy
+
+watch(droppedItems, () => {
+  nextTick(() => {
+    droppedItems.value.forEach(item => {
+      const el = proxy?.$refs['draggable-' + item.id] as HTMLElement
+      if (el) {
+        interact(el).draggable({
+          listeners: {
+            move(event) {
+              item.x += event.dx
+              item.y += event.dy
+              el.style.left = item.x + 'px'
+              el.style.top = item.y + 'px'
+            }
+          }
+        })
+      }
+    })
+  })
+}, { deep: true })
 </script>
+
 
 <style scoped>
 .main-layout {
@@ -288,7 +450,7 @@ const componentChecks = ref({
   gap: 12px;
 }
 .component-box {
-  border: 1px solid #ccc; /* さらに薄いグレー */
+  border: 1.5px solid #ccc;
   border-radius: 6px;
   padding: 16px 12px;
   background: #fff;
@@ -296,5 +458,47 @@ const componentChecks = ref({
   color: #222;
   width: 220px;
   box-sizing: border-box;
+  cursor: grab;
+}
+.center-area {
+  position: relative;
+  flex: 1;
+  background: #fff;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.draggable-item {
+  width: 220px;
+  height: auto;
+  padding: 16px 12px;
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #222;
+  text-align: left;
+  line-height: normal;
+  cursor: move;
+  user-select: none;
+  position: absolute;
+  z-index: 10;
+  box-sizing: border-box;
+}
+.draggable-item.preview {
+  border-style: dashed;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.detail-area {
+  position: fixed;
+  top: 10%;
+  right: 20px;
+  height: 80vh;
+  width: 25vw;
+  background: #f8f9fa;
+  border: none;
+  box-sizing: border-box;
+  z-index: 100;
+  overflow-y: auto;
 }
 </style>
