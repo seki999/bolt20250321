@@ -5,7 +5,7 @@
       <div class="component-section">
         <h5>データ入力</h5>
         <div class="component-list">
-          <!-- 组件拖拽区域 -->
+          <!-- コンポーネントドラッグエリア -->
           <div
             class="component-box"
             v-for="comp in inputComponents"
@@ -129,7 +129,7 @@
         ></div>
         {{ item.name }}
       </div>
-      <!-- 拖拽预览 -->
+      <!-- ドラッグプレビュー -->
       <div
         v-if="dragPreview"
         class="draggable-item preview"
@@ -139,7 +139,7 @@
       </div>
       <svg class="connections-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:5;">
         <g v-for="(conn, idx) in connections" :key="idx" @mouseenter="hoveredConnectionIndex = idx" @mouseleave="hoveredConnectionIndex = null">
-          <!-- Hitbox line for hover -->
+          <!-- ホバー用のヒットボックス線 -->
           <line
             :x1="getPointPosition(conn.fromId, conn.fromPoint).x"
             :y1="getPointPosition(conn.fromId, conn.fromPoint).y"
@@ -149,7 +149,7 @@
             stroke-width="10"
             style="cursor: pointer;"
           />
-          <!-- Visible line -->
+          <!-- 表示される線 -->
           <line
             :x1="getPointPosition(conn.fromId, conn.fromPoint).x"
             :y1="getPointPosition(conn.fromId, conn.fromPoint).y"
@@ -159,7 +159,7 @@
             stroke-width="2"
             style="pointer-events: none;"
           />
-          <!-- Delete button -->
+          <!-- 削除ボタン -->
           <g
             v-if="hoveredConnectionIndex === idx"
             :transform="`translate(${ (getPointPosition(conn.fromId, conn.fromPoint).x + getPointPosition(conn.toId, conn.toPoint).x) / 2 }, ${ (getPointPosition(conn.fromId, conn.fromPoint).y + getPointPosition(conn.toId, conn.toPoint).y) / 2 })`"
@@ -170,7 +170,7 @@
             <text fill="white" text-anchor="middle" dy=".3em" style="pointer-events: none; font-size: 16px; font-weight: bold;">&times;</text>
           </g>
         </g>
-        <!-- 拖动中的线 -->
+        <!-- ドラッグ中の線 -->
         <line
           v-if="draggingLine"
           :x1="draggingLine.startX"
@@ -241,7 +241,6 @@ const outputComponents = [
   'HTTP'
 ];
 // ドラッグ中のコンポーネント
-// ドラッグ中のコンポーネント名
 let dragCompName: string | null = null;
 let dragCompType: DroppedItem['type'] | null = null;
 
@@ -251,7 +250,7 @@ interface DroppedItem {
   name: string;
   x: number;
   y: number;
-  type: 'input' | 'process' | 'output'; // Add this property
+  type: 'input' | 'process' | 'output'; // このプロパティを追加
 }
 
 interface Connection {
@@ -269,7 +268,7 @@ const connections = ref<Connection[]>([]);
 let dragging = false
 const dragPreview = ref<{ name: string, x: number, y: number } | null>(null)
 
-// 新しいリアクティブな参照を追加
+// 新しいリアクティブ参照を追加
 const draggingLine = ref<{
   fromId: number;
   fromPoint: 'top' | 'bottom';
@@ -286,7 +285,7 @@ function startDrag(comp: string, type: DroppedItem['type'], event: MouseEvent) {
   event.preventDefault()
   dragging = true
   dragCompName = comp
-  dragCompType = type // 保存组件的类型
+  dragCompType = type // コンポーネントのタイプを保存
   dragPreview.value = { name: comp, x: event.clientX, y: event.clientY }
   window.addEventListener('mousemove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
@@ -301,8 +300,8 @@ function onMouseMove(event: MouseEvent) {
 }
 
 // ドラッグ終了
-function onMouseUp(event: MouseEvent) { // 移除 componentType 声明
-  if (dragging && dragCompName && dragCompType && dragPreview.value) { // 确保 dragCompType 已设置
+function onMouseUp(event: MouseEvent) { // componentType の宣言を削除
+  if (dragging && dragCompName && dragCompType && dragPreview.value) { // dragCompType が設定されていることを確認
     // 中央エリア内か判定
     const centerArea = document.querySelector('.center-area') as HTMLElement
     const rect = centerArea.getBoundingClientRect()
@@ -315,15 +314,15 @@ function onMouseUp(event: MouseEvent) { // 移除 componentType 声明
       droppedItems.value.push({
         id: Date.now() + Math.random(),
         name: dragCompName, // 使用 dragCompName
-        x: event.clientX - rect.left, // Calculate relative position
-        y: event.clientY - rect.top,  // Calculate relative position
-        type: dragCompType // 直接使用保存的类型
+        x: event.clientX - rect.left, // 相対位置を計算
+        y: event.clientY - rect.top,  // 相対位置を計算
+        type: dragCompType // 保存されたタイプを直接使用
       })
     }
   }
-  dragging = false // 重置拖拽状态
-  dragCompName = null // 重置组件名称
-  dragCompType = null // 重置组件类型
+  dragging = false // ドラッグ状態をリセット
+  dragCompName = null // コンポーネント名をリセット
+  dragCompType = null // コンポーネントタイプをリセット
   dragPreview.value = null
   window.removeEventListener('mousemove', onMouseMove)
   window.removeEventListener('mouseup', onMouseUp)
@@ -332,10 +331,10 @@ function onMouseUp(event: MouseEvent) { // 移除 componentType 声明
 const initializeDraggable = (el: any, item: DroppedItem) => {
   if (el) {
     interact(el).draggable({
-      ignoreFrom: '.connection-point', // 忽略从 .connection-point 元素开始的拖拽
+      ignoreFrom: '.connection-point', // .connection-point 要素からのドラッグを無視
       listeners: {
         move(event) {
-          // 如果是从小圆圈拖动，不移动组件
+          // 小さい円からドラッグしている場合は、コンポーネントを移動しない
           if (
             event?.downEvent?.target?.classList?.contains('connection-point')
           ) {
@@ -351,7 +350,7 @@ const initializeDraggable = (el: any, item: DroppedItem) => {
 
 const removeItem = (itemId: number) => {
   droppedItems.value = droppedItems.value.filter(item => item.id !== itemId)
-  // Also remove connections attached to this item
+  // このアイテムに接続されている接続も削除
   connections.value = connections.value.filter(
     conn => conn.fromId !== itemId && conn.toId !== itemId
   );
@@ -439,7 +438,7 @@ function getPointPosition(id: number, point: 'top' | 'bottom') {
 <style scoped>
 .main-layout {
   display: flex;
-  min-height: 100vh; /* 或 height: 100vh; */
+  min-height: 100vh; /* または height: 100vh; */
   box-sizing: border-box;
 }
 .sidebar {
@@ -530,7 +529,7 @@ function getPointPosition(id: number, point: 'top' | 'bottom') {
   width: 100vw;
   min-height: 100vh;
   box-sizing: border-box;
-  margin-right: 25vw; /* detail-areaの幅と同じだけ右にマージンを追加 */
+  margin-right: 25vw; /* detail-area の幅と同じだけ右にマージンを追加 */
 }
 .detail-area {
   position: fixed;
@@ -539,7 +538,7 @@ function getPointPosition(id: number, point: 'top' | 'bottom') {
   height: 70vh;
   width: 25vw;
   background: #f8f9fa;
-  /* 边框を削除 */
+  /* 枠線を削除 */
   border: none;
   box-sizing: border-box;
   z-index: 100;
@@ -672,20 +671,20 @@ function getPointPosition(id: number, point: 'top' | 'bottom') {
 }
 .connection-point {
   position: absolute;
-  width: 12px; /* Size of the circle */
+  width: 12px; /* 円のサイズ */
   height: 12px;
-  background-color: #007bff; /* Blue circle */
+  background-color: #007bff; /* 青い円 */
   border: 1px solid #0056b3;
-  border-radius: 50%; /* Make it a circle */
-  transform: translateX(-50%); /* Center horizontally */
+  border-radius: 50%; /* 円形にする */
+  transform: translateX(-50%); /* 水平方向に中央揃え */
   left: 50%;
-  z-index: 11; /* Above the item, but below the close button if needed */
+  z-index: 11; /* アイテムの上、必要に応じて閉じるボタンの下 */
 }
 .connection-point.top {
-  top: -6px; /* Half of its height to be outside */
+  top: -6px; /* 高さが半分外側になるように */
 }
 .connection-point.bottom {
-  bottom: -6px; /* Half of its height to be outside */
+  bottom: -6px; /* 高さが半分外側になるように */
 }
 .connections-svg {
   pointer-events: none;
