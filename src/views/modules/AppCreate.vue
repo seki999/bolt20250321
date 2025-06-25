@@ -109,6 +109,9 @@
         :ref="(el) => initializeDraggable(el, item)"
         :style="{ left: item.x + 'px', top: item.y + 'px', position: 'absolute' }"
       >
+        <button class="close-button" @click="removeItem(item.id)" @mousedown.stop>
+          &times;
+        </button>
         {{ item.name }}
       </div>
       <!-- 拖拽预览 -->
@@ -188,6 +191,7 @@ const dragPreview = ref<{ name: string, x: number, y: number } | null>(null)
 
 // ドラッグ開始
 function startDrag(comp: string, event: MouseEvent) {
+  event.preventDefault()
   dragging = true
   dragComp = comp
   dragPreview.value = { name: comp, x: event.clientX, y: event.clientY }
@@ -241,6 +245,10 @@ const initializeDraggable = (el: any, item: { id: number, name: string, x: numbe
       }
     })
   }
+}
+
+const removeItem = (itemId: number) => {
+  droppedItems.value = droppedItems.value.filter(item => item.id !== itemId)
 }
 </script>
 
@@ -430,7 +438,7 @@ const initializeDraggable = (el: any, item: { id: number, name: string, x: numbe
 .draggable-item {
   width: 220px;
   height: auto;
-  padding: 16px 12px;
+  padding: 16px 30px 16px 12px;
   background: #e3f2fd;
   border: 1px solid #2196f3;
   border-radius: 6px;
@@ -460,5 +468,23 @@ const initializeDraggable = (el: any, item: { id: number, name: string, x: numbe
   box-sizing: border-box;
   z-index: 100;
   overflow-y: auto;
+}
+.close-button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  font-weight: bold;
+}
+.close-button:hover {
+  color: #000;
 }
 </style>
