@@ -2,7 +2,7 @@
   <div class="main-layout">
     <!-- 左側：コンポーネントリスト -->
     <aside class="sidebar">
-      <div class="component-section">
+      <div class="component-section" v-show="appToggle">
         <h5>データ入力</h5>
         <div class="component-list">
           <!-- コンポーネントドラッグエリア -->
@@ -16,7 +16,7 @@
           </div>
         </div>
       </div>
-      <div class="component-section">
+      <div class="component-section" v-show="appToggle">
         <h5>データ処理</h5>
         <div class="component-list">
           <div
@@ -29,7 +29,7 @@
           </div>
         </div>
       </div>
-      <div class="component-section">
+      <div class="component-section" v-show="appToggle">
         <h5>データ出力</h5>
         <div class="component-list">
           <div
@@ -102,6 +102,29 @@
       @mousemove="onMouseMove"
       @mouseup="onMouseUp"
     >
+    <!-- アプリ制御パネル -->
+      <div class="app-control-panel">
+        <div class="app-info">
+          <span>{{ appName }}</span>
+          <span>{{ appStatus }}</span>
+        </div>
+        <div class="app-actions">
+          <!-- トグルスイッチ -->
+          <label class="switch">
+            <input type="checkbox" v-model="appToggle" />
+            <span class="slider round"></span>
+          </label>
+          <span>変更</span>
+          <button
+            class="control-button"
+            :style="{ visibility: appToggle ? 'visible' : 'hidden' }"
+          >起動</button>
+          <button
+            class="control-button"
+            :style="{ visibility: appToggle ? 'visible' : 'hidden' }"
+          >停止</button>
+        </div>
+      </div>
       <div
         v-for="item in droppedItems"
         :key="item.id"
@@ -196,6 +219,10 @@
 // サイドバー下部パネルの表示/非表示状態
 import { ref } from 'vue'
 import interact from 'interactjs'
+// New refs for app control panel
+const appToggle = ref(false); // Default to closed
+const appName = ref('My New App'); // Placeholder
+const appStatus = ref('停止済み'); // Placeholder
 
 // 下部パネルの表示/非表示
 const hideBottomPanel = ref(false)
@@ -708,5 +735,122 @@ function getPointPosition(id: number, point: 'top' | 'bottom') {
   top: 0; left: 0;
   width: 100%; height: 100%;
   z-index: 5;
+}
+.app-control-panel {
+  position: absolute;
+  top: 20px; /* Adjust as needed */
+  left: 20px; /* Adjust as needed */
+  background: #f0f8ff; /* Light blue background */
+  border: 1px solid #add8e6; /* Light blue border */
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 20; /* Ensure it's above other elements */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.app-info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.app-info span,
+.app-actions span {
+  font-size: 14px;
+  color: #333;
+  margin-right: 15px;
+}
+
+.app-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 220px; /* 必要に応じて調整 */
+}
+
+.control-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.control-button:first-of-type { /* 起動ボタン */
+  background-color: #28a745; /* Green */
+  color: white;
+}
+
+.control-button:last-of-type { /* 停止ボタン */
+  background-color: #dc3545; /* Red */
+  color: white;
+}
+
+.control-button:hover {
+  opacity: 0.9;
+}
+
+/* Toggle Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(20px);
+  -ms-transform: translateX(20px);
+  transform: translateX(20px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 20px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }
 </style>
