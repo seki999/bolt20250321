@@ -106,14 +106,27 @@
         v-for="item in droppedItems"
         :key="item.id"
         class="draggable-item"
+        :data-id="item.id"
         :ref="(el) => initializeDraggable(el, item)"
         :style="{ left: item.x + 'px', top: item.y + 'px', position: 'absolute' }"
       >
         <button class="close-button" @click="removeItem(item.id)" @mousedown.stop>
           &times;
         </button>
-        <div v-if="item.type === 'process' || item.type === 'output'" class="connection-point top"></div>
-        <div v-if="item.type === 'process' || item.type === 'input'" class="connection-point bottom"></div>
+        <div
+          v-if="item.type === 'process' || item.type === 'output'"
+          class="connection-point top"
+           :data-id="item.id"
+          :data-point="'top'"
+          @mousedown.stop="startLineDrag(item, 'top', $event)"
+        ></div>
+        <div
+          v-if="item.type === 'process' || item.type === 'input'"
+          class="connection-point bottom"
+          :data-id="item.id"
+          :data-point="'bottom'"
+          @mousedown.stop="startLineDrag(item, 'bottom', $event)"
+        ></div>
         {{ item.name }}
       </div>
       <!-- 拖拽预览 -->
@@ -124,6 +137,52 @@
       >
         {{ dragPreview.name }}
       </div>
+      <svg class="connections-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:5;">
+        <g v-for="(conn, idx) in connections" :key="idx" @mouseenter="hoveredConnectionIndex = idx" @mouseleave="hoveredConnectionIndex = null">
+          <!-- Hitbox line for hover -->
+          <line
+            :x1="getPointPosition(conn.fromId, conn.fromPoint).x"
+            :y1="getPointPosition(conn.fromId, conn.fromPoint).y"
+            :x2="getPointPosition(conn.toId, conn.toPoint).x"
+            :y2="getPointPosition(conn.toId, conn.toPoint).y"
+            stroke="transparent"
+            stroke-width="10"
+            style="cursor: pointer;"
+          />
+          <!-- Visible line -->
+          <line
+            :x1="getPointPosition(conn.fromId, conn.fromPoint).x"
+            :y1="getPointPosition(conn.fromId, conn.fromPoint).y"
+            :x2="getPointPosition(conn.toId, conn.toPoint).x"
+            :y2="getPointPosition(conn.toId, conn.toPoint).y"
+            stroke="#007bff"
+            stroke-width="2"
+            style="pointer-events: none;"
+          />
+          <!-- Delete button -->
+          <g
+            v-if="hoveredConnectionIndex === idx"
+            :transform="`translate(${ (getPointPosition(conn.fromId, conn.fromPoint).x + getPointPosition(conn.toId, conn.toPoint).x) / 2 }, ${ (getPointPosition(conn.fromId, conn.fromPoint).y + getPointPosition(conn.toId, conn.toPoint).y) / 2 })`"
+            @click.stop="removeConnection(idx)"
+            style="cursor: pointer;"
+          >
+            <circle r="10" fill="#ff4d4d"></circle>
+            <text fill="white" text-anchor="middle" dy=".3em" style="pointer-events: none; font-size: 16px; font-weight: bold;">&times;</text>
+          </g>
+        </g>
+        <!-- 拖动中的线 -->
+        <line
+          v-if="draggingLine"
+          :x1="draggingLine.startX"
+          :y1="draggingLine.startY"
+          :x2="draggingLine.currentX"
+          :y2="draggingLine.currentY"
+          stroke="#007bff"
+          stroke-width="2"
+          stroke-dasharray="4"
+          style="pointer-events: none;"
+        />
+      </svg>
     </main>
     <!-- 右側：コンポーネント詳細設定 -->
     <aside class="detail-area">
@@ -195,12 +254,32 @@ interface DroppedItem {
   type: 'input' | 'process' | 'output'; // Add this property
 }
 
+interface Connection {
+  fromId: number;
+  fromPoint: 'top' | 'bottom';
+  toId: number;
+  toPoint: 'top' | 'bottom';
+}
+
 // ドロップされたアイテムリスト
 const droppedItems = ref<DroppedItem[]>([]);
+const connections = ref<Connection[]>([]);
 
 // ドラッグ中の状態
 let dragging = false
 const dragPreview = ref<{ name: string, x: number, y: number } | null>(null)
+
+// 新しいリアクティブな参照を追加
+const draggingLine = ref<{
+  fromId: number;
+  fromPoint: 'top' | 'bottom';
+  startX: number;
+  startY: number;
+  currentX: number;
+  currentY: number;
+} | null>(null);
+
+const hoveredConnectionIndex = ref<number | null>(null);
 
 // ドラッグ開始
 function startDrag(comp: string, type: DroppedItem['type'], event: MouseEvent) {
@@ -250,21 +329,109 @@ function onMouseUp(event: MouseEvent) { // 移除 componentType 声明
   window.removeEventListener('mouseup', onMouseUp)
 }
 
-const initializeDraggable = (el: any, item: DroppedItem) => { // Update item type here
+const initializeDraggable = (el: any, item: DroppedItem) => {
   if (el) {
     interact(el).draggable({
+      ignoreFrom: '.connection-point', // 忽略从 .connection-point 元素开始的拖拽
       listeners: {
         move(event) {
-          item.x += event.dx
-          item.y += event.dy
+          // 如果是从小圆圈拖动，不移动组件
+          if (
+            event?.downEvent?.target?.classList?.contains('connection-point')
+          ) {
+            return;
+          }
+          item.x += event.dx;
+          item.y += event.dy;
         }
       }
-    })
+    });
   }
-}
+};
 
 const removeItem = (itemId: number) => {
   droppedItems.value = droppedItems.value.filter(item => item.id !== itemId)
+  // Also remove connections attached to this item
+  connections.value = connections.value.filter(
+    conn => conn.fromId !== itemId && conn.toId !== itemId
+  );
+}
+
+function startLineDrag(item: DroppedItem, point: 'top' | 'bottom', event: MouseEvent) {
+  event.stopPropagation();
+  const circleRect = (event.target as HTMLElement).getBoundingClientRect();
+  const centerArea = document.querySelector('.center-area') as HTMLElement;
+  const areaRect = centerArea.getBoundingClientRect();
+  const x = circleRect.left + circleRect.width / 2 - areaRect.left;
+  const y = circleRect.top + circleRect.height / 2 - areaRect.top;
+  draggingLine.value = {
+    fromId: item.id,
+    fromPoint: point,
+    startX: x,
+    startY: y,
+    currentX: x,
+    currentY: y,
+  };
+  window.addEventListener('mousemove', onLineDragMove);
+  window.addEventListener('mouseup', onLineDragEnd);
+}
+
+function onLineDragMove(event: MouseEvent) {
+  if (draggingLine.value) {
+    const centerArea = document.querySelector('.center-area') as HTMLElement;
+    const areaRect = centerArea.getBoundingClientRect();
+    draggingLine.value.currentX = event.clientX - areaRect.left;
+    draggingLine.value.currentY = event.clientY - areaRect.top;
+  }
+}
+
+function onLineDragEnd(event: MouseEvent) {
+  if (draggingLine.value) {
+    const target = event.target as HTMLElement;
+    if (
+      target.classList.contains('connection-point') &&
+      target.dataset.id &&
+      target.dataset.point
+    ) {
+      const toId = Number(target.dataset.id);
+      const toPoint = target.dataset.point as 'top' | 'bottom';
+      if (
+        toId !== draggingLine.value.fromId ||
+        toPoint !== draggingLine.value.fromPoint
+      ) {
+        connections.value.push({
+          fromId: draggingLine.value.fromId,
+          fromPoint: draggingLine.value.fromPoint,
+          toId,
+          toPoint,
+        });
+      }
+    }
+    draggingLine.value = null;
+    window.removeEventListener('mousemove', onLineDragMove);
+    window.removeEventListener('mouseup', onLineDragEnd);
+  }
+}
+
+function removeConnection(index: number) {
+  connections.value.splice(index, 1);
+  hoveredConnectionIndex.value = null;
+}
+
+function getPointPosition(id: number, point: 'top' | 'bottom') {
+  const el = document.querySelector(
+    `.draggable-item[data-id="${id}"] .connection-point.${point}`
+  ) as HTMLElement;
+  const centerArea = document.querySelector('.center-area') as HTMLElement;
+  if (el && centerArea) {
+    const rect = el.getBoundingClientRect();
+    const areaRect = centerArea.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2 - areaRect.left,
+      y: rect.top + rect.height / 2 - areaRect.top,
+    };
+  }
+  return { x: 0, y: 0 };
 }
 </script>
 
@@ -519,5 +686,12 @@ const removeItem = (itemId: number) => {
 }
 .connection-point.bottom {
   bottom: -6px; /* Half of its height to be outside */
+}
+.connections-svg {
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 5;
 }
 </style>
