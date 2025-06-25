@@ -10,7 +10,7 @@
             class="component-box"
             v-for="comp in inputComponents"
             :key="comp"
-            @mousedown="startDrag(comp, $event)"
+            @mousedown="startDrag(comp, 'input', $event)"
           >
             {{ comp }}
           </div>
@@ -23,7 +23,7 @@
             class="component-box"
             v-for="comp in processComponents"
             :key="comp"
-            @mousedown="startDrag(comp, $event)"
+            @mousedown="startDrag(comp, 'process', $event)"
           >
             {{ comp }}
           </div>
@@ -36,7 +36,7 @@
             class="component-box"
             v-for="comp in outputComponents"
             :key="comp"
-            @mousedown="startDrag(comp, $event)"
+            @mousedown="startDrag(comp, 'output', $event)"
           >
             {{ comp }}
         </div>
@@ -112,6 +112,8 @@
         <button class="close-button" @click="removeItem(item.id)" @mousedown.stop>
           &times;
         </button>
+        <div v-if="item.type === 'process' || item.type === 'output'" class="connection-point top"></div>
+        <div v-if="item.type === 'process' || item.type === 'input'" class="connection-point bottom"></div>
         {{ item.name }}
       </div>
       <!-- 拖拽预览 -->
@@ -180,20 +182,32 @@ const outputComponents = [
   'HTTP'
 ];
 // ドラッグ中のコンポーネント
-let dragComp: string | null = null
+// ドラッグ中のコンポーネント名
+let dragCompName: string | null = null;
+let dragCompType: DroppedItem['type'] | null = null;
+
+// Define the interface for a dropped item
+interface DroppedItem {
+  id: number;
+  name: string;
+  x: number;
+  y: number;
+  type: 'input' | 'process' | 'output'; // Add this property
+}
 
 // ドロップされたアイテムリスト
-const droppedItems = ref<{ id: number, name: string, x: number, y: number }[]>([])
+const droppedItems = ref<DroppedItem[]>([]);
 
 // ドラッグ中の状態
 let dragging = false
 const dragPreview = ref<{ name: string, x: number, y: number } | null>(null)
 
 // ドラッグ開始
-function startDrag(comp: string, event: MouseEvent) {
+function startDrag(comp: string, type: DroppedItem['type'], event: MouseEvent) {
   event.preventDefault()
   dragging = true
-  dragComp = comp
+  dragCompName = comp
+  dragCompType = type // 保存组件的类型
   dragPreview.value = { name: comp, x: event.clientX, y: event.clientY }
   window.addEventListener('mousemove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
@@ -208,8 +222,8 @@ function onMouseMove(event: MouseEvent) {
 }
 
 // ドラッグ終了
-function onMouseUp(event: MouseEvent) {
-  if (dragging && dragComp && dragPreview.value) {
+function onMouseUp(event: MouseEvent) { // 移除 componentType 声明
+  if (dragging && dragCompName && dragCompType && dragPreview.value) { // 确保 dragCompType 已设置
     // 中央エリア内か判定
     const centerArea = document.querySelector('.center-area') as HTMLElement
     const rect = centerArea.getBoundingClientRect()
@@ -221,20 +235,22 @@ function onMouseUp(event: MouseEvent) {
     ) {
       droppedItems.value.push({
         id: Date.now() + Math.random(),
-        name: dragComp,
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top
+        name: dragCompName, // 使用 dragCompName
+        x: event.clientX - rect.left, // Calculate relative position
+        y: event.clientY - rect.top,  // Calculate relative position
+        type: dragCompType // 直接使用保存的类型
       })
     }
   }
-  dragging = false
-  dragComp = null
+  dragging = false // 重置拖拽状态
+  dragCompName = null // 重置组件名称
+  dragCompType = null // 重置组件类型
   dragPreview.value = null
   window.removeEventListener('mousemove', onMouseMove)
   window.removeEventListener('mouseup', onMouseUp)
 }
 
-const initializeDraggable = (el: any, item: { id: number, name: string, x: number, y: number }) => {
+const initializeDraggable = (el: any, item: DroppedItem) => { // Update item type here
   if (el) {
     interact(el).draggable({
       listeners: {
@@ -486,5 +502,22 @@ const removeItem = (itemId: number) => {
 }
 .close-button:hover {
   color: #000;
+}
+.connection-point {
+  position: absolute;
+  width: 12px; /* Size of the circle */
+  height: 12px;
+  background-color: #007bff; /* Blue circle */
+  border: 1px solid #0056b3;
+  border-radius: 50%; /* Make it a circle */
+  transform: translateX(-50%); /* Center horizontally */
+  left: 50%;
+  z-index: 11; /* Above the item, but below the close button if needed */
+}
+.connection-point.top {
+  top: -6px; /* Half of its height to be outside */
+}
+.connection-point.bottom {
+  bottom: -6px; /* Half of its height to be outside */
 }
 </style>
