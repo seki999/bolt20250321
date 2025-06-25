@@ -118,10 +118,12 @@
           <button
             class="control-button"
             :style="{ visibility: appToggle ? 'visible' : 'hidden' }"
+            @click="onStart"
           >起動</button>
           <button
             class="control-button"
             :style="{ visibility: appToggle ? 'visible' : 'hidden' }"
+            @click="onStop"
           >停止</button>
         </div>
       </div>
@@ -205,6 +207,18 @@
           stroke-dasharray="4"
           style="pointer-events: none;"
         />
+        <g v-for="(conn, idx) in connections" :key="idx">
+          <!-- ...既存の線... -->
+          <g v-if="running && connections.length > 0">
+            <circle
+              :cx="getFlowPoint(connections[flowIndex], flowProgress).x"
+              :cy="getFlowPoint(connections[flowIndex], flowProgress).y"
+              r="6"
+              fill="#ff9800"
+              opacity="0.8"
+            />
+          </g>
+        </g>
       </svg>
     </main>
     <!-- 右側：コンポーネント詳細設定 -->
@@ -311,6 +325,11 @@ const draggingLine = ref<{
 
 // ホバー中の接続インデックス
 const hoveredConnectionIndex = ref<number | null>(null);
+
+// 起動中かどうか
+const running = ref(false);
+const flowIndex = ref(0); // 現在流れているconnectionのインデックス
+const flowProgress = ref(0); // 0～1の進捗
 
 // 左側リストからドラッグ開始
 function startDrag(comp: string, type: DroppedItem['type'], event: MouseEvent) {
@@ -474,6 +493,48 @@ function getPointPosition(id: number, point: 'top' | 'bottom') {
     };
   }
   return { x: 0, y: 0 };
+}
+
+// アニメーション関連
+function onStart() {
+  if (connections.value.length === 0) return;
+  running.value = true;
+  flowIndex.value = 0;
+  flowProgress.value = 0;
+  animateFlow();
+}
+
+let flowTimer: number | null = null;
+function animateFlow() {
+  if (!running.value) return;
+  // 速度を遅くするには増分を小さくする（例: 0.01）
+  flowProgress.value += 0.01;
+  if (flowProgress.value > 1) {
+    flowProgress.value = 0;
+    flowIndex.value++;
+    if (flowIndex.value >= connections.value.length) {
+      flowIndex.value = 0;
+    }
+  }
+  flowTimer = requestAnimationFrame(animateFlow);
+}
+
+function onStop() {
+  running.value = false;
+  if (flowTimer) {
+    cancelAnimationFrame(flowTimer);
+    flowTimer = null;
+  }
+}
+
+// データ流動アニメーションのポイント取得
+function getFlowPoint(conn: Connection, progress: number) {
+  const from = getPointPosition(conn.fromId, conn.fromPoint);
+  const to = getPointPosition(conn.toId, conn.toPoint);
+  return {
+    x: from.x + (to.x - from.x) * progress,
+    y: from.y + (to.y - from.y) * progress,
+  };
 }
 </script>
 
