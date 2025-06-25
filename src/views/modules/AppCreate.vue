@@ -106,7 +106,7 @@
         v-for="item in droppedItems"
         :key="item.id"
         class="draggable-item"
-        :ref="'draggable-' + item.id"
+        :ref="(el) => initializeDraggable(el, item)"
         :style="{ left: item.x + 'px', top: item.y + 'px', position: 'absolute' }"
       >
         {{ item.name }}
@@ -130,7 +130,7 @@
 
 <script setup lang="ts">
 // サイドバー下部パネルの表示/非表示状態
-import { ref, onMounted, nextTick, getCurrentInstance, watch } from 'vue'
+import { ref } from 'vue'
 import interact from 'interactjs'
 
 const hideBottomPanel = ref(false)
@@ -221,11 +221,6 @@ function onMouseUp(event: MouseEvent) {
         x: event.clientX - rect.left,
         y: event.clientY - rect.top
       })
-      nextTick(() => {
-        droppedItems.value.forEach(item => {
-          makeDraggable(item.id)
-        })
-      })
     }
   }
   dragging = false
@@ -235,53 +230,18 @@ function onMouseUp(event: MouseEvent) {
   window.removeEventListener('mouseup', onMouseUp)
 }
 
-// interact.jsで中央エリア内のアイテムを自由に動かす
-const draggableRefs = new Map<number, HTMLElement>()
-function setDraggableRef(el: HTMLElement | null, id: number) {
+const initializeDraggable = (el: any, item: { id: number, name: string, x: number, y: number }) => {
   if (el) {
-    draggableRefs.set(id, el)
-    makeDraggable(id)
-  }
-}
-function makeDraggable(id: number) {
-  const el = draggableRefs.get(id)
-  if (!el) return
-  interact(el).draggable({
-    listeners: {
-      move(event) {
-        const item = droppedItems.value.find(i => i.id === id)
-        if (item) {
+    interact(el).draggable({
+      listeners: {
+        move(event) {
           item.x += event.dx
           item.y += event.dy
-          el.style.left = item.x + 'px'
-          el.style.top = item.y + 'px'
         }
       }
-    }
-  })
-}
-
-const proxy = getCurrentInstance()?.proxy
-
-watch(droppedItems, () => {
-  nextTick(() => {
-    droppedItems.value.forEach(item => {
-      const el = proxy?.$refs['draggable-' + item.id] as HTMLElement
-      if (el) {
-        interact(el).draggable({
-          listeners: {
-            move(event) {
-              item.x += event.dx
-              item.y += event.dy
-              el.style.left = item.x + 'px'
-              el.style.top = item.y + 'px'
-            }
-          }
-        })
-      }
     })
-  })
-}, { deep: true })
+  }
+}
 </script>
 
 
