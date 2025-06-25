@@ -197,6 +197,7 @@
 import { ref } from 'vue'
 import interact from 'interactjs'
 
+// 下部パネルの表示/非表示
 const hideBottomPanel = ref(false)
 const isExpanded = ref(false)
 const activeTab = ref('console')
@@ -221,7 +222,7 @@ const componentChecks = ref({
   api: false
 })
 
-// サンプルデータ
+// サンプルデータ（左側のコンポーネントリスト）
 const inputComponents = [
   'Kafka',
   'MQTT',
@@ -240,19 +241,21 @@ const outputComponents = [
   'MQTT',
   'HTTP'
 ];
-// ドラッグ中のコンポーネント
+
+// ドラッグ中のコンポーネント名とタイプ
 let dragCompName: string | null = null;
 let dragCompType: DroppedItem['type'] | null = null;
 
-// Define the interface for a dropped item
+// ドロップされたアイテムの型定義
 interface DroppedItem {
   id: number;
   name: string;
   x: number;
   y: number;
-  type: 'input' | 'process' | 'output'; // このプロパティを追加
+  type: 'input' | 'process' | 'output'; // コンポーネントの種類
 }
 
+// 接続線の型定義
 interface Connection {
   fromId: number;
   fromPoint: 'top' | 'bottom';
@@ -262,13 +265,14 @@ interface Connection {
 
 // ドロップされたアイテムリスト
 const droppedItems = ref<DroppedItem[]>([]);
+// 接続線リスト
 const connections = ref<Connection[]>([]);
 
-// ドラッグ中の状態
+// ドラッグ中の状態管理
 let dragging = false
 const dragPreview = ref<{ name: string, x: number, y: number } | null>(null)
 
-// 新しいリアクティブ参照を追加
+// 線をドラッグ中の状態
 const draggingLine = ref<{
   fromId: number;
   fromPoint: 'top' | 'bottom';
@@ -278,9 +282,10 @@ const draggingLine = ref<{
   currentY: number;
 } | null>(null);
 
+// ホバー中の接続インデックス
 const hoveredConnectionIndex = ref<number | null>(null);
 
-// ドラッグ開始
+// 左側リストからドラッグ開始
 function startDrag(comp: string, type: DroppedItem['type'], event: MouseEvent) {
   event.preventDefault()
   dragging = true
@@ -291,7 +296,7 @@ function startDrag(comp: string, type: DroppedItem['type'], event: MouseEvent) {
   window.addEventListener('mouseup', onMouseUp)
 }
 
-// ドラッグ中
+// ドラッグ中のプレビュー位置更新
 function onMouseMove(event: MouseEvent) {
   if (dragging && dragPreview.value) {
     dragPreview.value.x = event.clientX
@@ -299,9 +304,9 @@ function onMouseMove(event: MouseEvent) {
   }
 }
 
-// ドラッグ終了
-function onMouseUp(event: MouseEvent) { // componentType の宣言を削除
-  if (dragging && dragCompName && dragCompType && dragPreview.value) { // dragCompType が設定されていることを確認
+// ドラッグ終了時の処理（中央エリアにドロップされたら追加）
+function onMouseUp(event: MouseEvent) {
+  if (dragging && dragCompName && dragCompType && dragPreview.value) {
     // 中央エリア内か判定
     const centerArea = document.querySelector('.center-area') as HTMLElement
     const rect = centerArea.getBoundingClientRect()
@@ -313,10 +318,10 @@ function onMouseUp(event: MouseEvent) { // componentType の宣言を削除
     ) {
       droppedItems.value.push({
         id: Date.now() + Math.random(),
-        name: dragCompName, // 使用 dragCompName
-        x: event.clientX - rect.left, // 相対位置を計算
-        y: event.clientY - rect.top,  // 相対位置を計算
-        type: dragCompType // 保存されたタイプを直接使用
+        name: dragCompName,
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+        type: dragCompType
       })
     }
   }
@@ -328,10 +333,12 @@ function onMouseUp(event: MouseEvent) { // componentType の宣言を削除
   window.removeEventListener('mouseup', onMouseUp)
 }
 
+// 中央エリアのコンポーネントをドラッグ可能にする
 const initializeDraggable = (el: any, item: DroppedItem) => {
   if (el) {
     interact(el).draggable({
-      ignoreFrom: '.connection-point', // .connection-point 要素からのドラッグを無視
+      // 小さい円（connection-point）からのドラッグを無視
+      ignoreFrom: '.connection-point',
       listeners: {
         move(event) {
           // 小さい円からドラッグしている場合は、コンポーネントを移動しない
@@ -348,6 +355,7 @@ const initializeDraggable = (el: any, item: DroppedItem) => {
   }
 };
 
+// コンポーネント削除（接続線も削除）
 const removeItem = (itemId: number) => {
   droppedItems.value = droppedItems.value.filter(item => item.id !== itemId)
   // このアイテムに接続されている接続も削除
@@ -356,8 +364,10 @@ const removeItem = (itemId: number) => {
   );
 }
 
+// 小さい円から線をドラッグ開始
 function startLineDrag(item: DroppedItem, point: 'top' | 'bottom', event: MouseEvent) {
   event.stopPropagation();
+  // 円の中心座標を中央エリア基準で取得
   const circleRect = (event.target as HTMLElement).getBoundingClientRect();
   const centerArea = document.querySelector('.center-area') as HTMLElement;
   const areaRect = centerArea.getBoundingClientRect();
@@ -375,6 +385,7 @@ function startLineDrag(item: DroppedItem, point: 'top' | 'bottom', event: MouseE
   window.addEventListener('mouseup', onLineDragEnd);
 }
 
+// 線ドラッグ中のマウス移動
 function onLineDragMove(event: MouseEvent) {
   if (draggingLine.value) {
     const centerArea = document.querySelector('.center-area') as HTMLElement;
@@ -384,9 +395,11 @@ function onLineDragMove(event: MouseEvent) {
   }
 }
 
+// 線ドラッグ終了時の処理
 function onLineDragEnd(event: MouseEvent) {
   if (draggingLine.value) {
     const target = event.target as HTMLElement;
+    // 他の小さい円の上で離した場合のみ接続
     if (
       target.classList.contains('connection-point') &&
       target.dataset.id &&
@@ -394,6 +407,7 @@ function onLineDragEnd(event: MouseEvent) {
     ) {
       const toId = Number(target.dataset.id);
       const toPoint = target.dataset.point as 'top' | 'bottom';
+      // 自分自身の同じポイントには接続しない
       if (
         toId !== draggingLine.value.fromId ||
         toPoint !== draggingLine.value.fromPoint
@@ -412,11 +426,13 @@ function onLineDragEnd(event: MouseEvent) {
   }
 }
 
+// 接続線の削除
 function removeConnection(index: number) {
   connections.value.splice(index, 1);
   hoveredConnectionIndex.value = null;
 }
 
+// 小さい円の中心座標を中央エリア基準で取得
 function getPointPosition(id: number, point: 'top' | 'bottom') {
   const el = document.querySelector(
     `.draggable-item[data-id="${id}"] .connection-point.${point}`
