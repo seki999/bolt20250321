@@ -9,10 +9,10 @@
           <div
             class="component-box"
             v-for="comp in inputComponents"
-            :key="comp"
+            :key="comp.id"
             @mousedown="startDrag(comp, 'input', $event)"
           >
-            {{ comp }}
+            {{ comp.name }}
           </div>
         </div>
       </div>
@@ -22,10 +22,10 @@
           <div
             class="component-box"
             v-for="comp in processComponents"
-            :key="comp"
+            :key="comp.id"
             @mousedown="startDrag(comp, 'process', $event)"
           >
-            {{ comp }}
+            {{ comp.name }}
           </div>
         </div>
       </div>
@@ -35,10 +35,10 @@
           <div
             class="component-box"
             v-for="comp in outputComponents"
-            :key="comp"
+            :key="comp.id"
             @mousedown="startDrag(comp, 'output', $event)"
           >
-            {{ comp }}
+            {{ comp.name }}
         </div>
       </div>
       </div>
@@ -228,16 +228,19 @@
         <h3>入力コンポーネント設定</h3>
         <div>名前: {{ selectedItem.name }}</div>
         <!-- ここに入力用の設定UIを追加 -->
+        <!-- 例: <div v-if="selectedItem.id === 'input-kafka'">Kafka専用設定...</div> -->
       </template>
       <template v-else-if="selectedItem.type === 'process'">
         <h3>処理コンポーネント設定</h3>
         <div>名前: {{ selectedItem.name }}</div>
         <!-- ここに処理用の設定UIを追加 -->
+        <!-- 例: <div v-if="selectedItem.id === 'process-code'">コード実行専用設定...</div> -->
       </template>
       <template v-else-if="selectedItem.type === 'output'">
         <h3>出力コンポーネント設定</h3>
         <div>名前: {{ selectedItem.name }}</div>
         <!-- ここに出力用の設定UIを追加 -->
+        <!-- 例: <div v-if="selectedItem.id === 'output-http'">HTTP専用設定...</div> -->
       </template>
     </aside>
   </div>
@@ -278,23 +281,24 @@ const componentChecks = ref({
 })
 
 // サンプルデータ（左側のコンポーネントリスト）
+// idはユニークな値、nameは画面表示用
 const inputComponents = [
-  'Kafka',
-  'MQTT',
-  'API呼び出し',
-  'gRPC Server Streaming',
-  'スケジュール'
+  { id: 'input-kafka', name: 'Kafka' },
+  { id: 'input-mqtt', name: 'MQTT' },
+  { id: 'input-api', name: 'API呼び出し' },
+  { id: 'input-grpc', name: 'gRPC Server Streaming' },
+  { id: 'input-schedule', name: 'スケジュール' }
 ];
 const processComponents = [
-  'コード実行',
-  'データ結合',
-  'フィルター',
-  '配列を要素ごとに取り出す'
+  { id: 'process-code', name: 'コード実行' },
+  { id: 'process-join', name: 'データ結合' },
+  { id: 'process-filter', name: 'フィルター' },
+  { id: 'process-array', name: '配列を要素ごとに取り出す' }
 ];
 const outputComponents = [
-  'Kafka',
-  'MQTT',
-  'HTTP'
+  { id: 'output-kafka', name: 'Kafka' },
+  { id: 'output-mqtt', name: 'MQTT' },
+  { id: 'output-http', name: 'HTTP' }
 ];
 
 // ドラッグ中のコンポーネント名とタイプ
@@ -346,12 +350,12 @@ const flowIndex = ref(0); // 現在流れているconnectionのインデック�
 const flowProgress = ref(0); // 0～1の進捗
 
 // 左側リストからドラッグ開始
-function startDrag(comp: string, type: DroppedItem['type'], event: MouseEvent) {
+function startDrag(comp: { id: string, name: string }, type: DroppedItem['type'], event: MouseEvent) {
   event.preventDefault()
   dragging = true
-  dragCompName = comp
+  dragCompName = comp.name
   dragCompType = type // コンポーネントのタイプを保存
-  dragPreview.value = { name: comp, x: event.clientX, y: event.clientY }
+  dragPreview.value = { name: comp.name, x: event.clientX, y: event.clientY }
   window.addEventListener('mousemove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
 }
