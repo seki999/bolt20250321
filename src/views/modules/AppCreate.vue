@@ -239,7 +239,7 @@ const appName = ref('My New App'); // Placeholder
 const appStatus = ref('停止済み'); // Placeholder
 
 // 下部パネルの表示/非表示
-const hideBottomPanel = ref(false)
+const hideBottomPanel = ref(true) // 初期値をtrueにして非表示スタート
 const isExpanded = ref(false)
 const activeTab = ref('console')
 
