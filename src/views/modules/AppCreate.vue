@@ -207,18 +207,16 @@
           stroke-dasharray="4"
           style="pointer-events: none;"
         />
-        <g v-for="(conn, idx) in connections" :key="idx">
-          <!-- ...既存の線... -->
-          <g v-if="running && connections.length > 0">
-            <circle
-              :cx="getFlowPoint(connections[flowIndex], flowProgress).x"
-              :cy="getFlowPoint(connections[flowIndex], flowProgress).y"
-              r="6"
-              fill="#ff9800"
-              opacity="0.8"
-            />
+        <!-- データ流動アニメーション -->
+        <g v-if="running && connections.length > 0 && connections[flowIndex]">
+          <circle
+            :cx="getFlowPoint(connections[flowIndex], flowProgress).x"
+            :cy="getFlowPoint(connections[flowIndex], flowProgress).y"
+            r="6"
+            fill="#ff9800"
+            opacity="0.8"
+          />
           </g>
-        </g>
       </svg>
     </main>
     <!-- 右側：コンポーネント詳細設定 -->
