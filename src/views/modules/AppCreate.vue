@@ -499,6 +499,7 @@ function onStart() {
   running.value = true;
   flowIndex.value = 0;
   flowProgress.value = 0;
+  appStatus.value = '起動中'; // ステータスを「起動中」に更新
   animateFlow();
 }
 
@@ -523,6 +524,7 @@ function onStop() {
     cancelAnimationFrame(flowTimer);
     flowTimer = null;
   }
+  appStatus.value = '停止済み'; // ステータスを「停止済み」に更新
 }
 
 // データ流動アニメーションのポイント取得
