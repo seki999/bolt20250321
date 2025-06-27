@@ -134,6 +134,7 @@
         :data-id="item.id"
         :ref="(el) => initializeDraggable(el, item)"
         :style="{ left: item.x + 'px', top: item.y + 'px', position: 'absolute' }"
+        @dblclick="selectedItem = item"
       >
         <button class="close-button" @click="removeItem(item.id)" @mousedown.stop>
           &times;
@@ -220,9 +221,24 @@
       </svg>
     </main>
     <!-- 右側：コンポーネント詳細設定 -->
-    <aside class="detail-area">
-        22222
-      <!-- ここは空白 -->
+    <aside class="detail-area" v-if="selectedItem">
+      <!-- 右上の閉じるボタン -->
+      <button class="detail-close-btn" @click="selectedItem = null" title="閉じる">&times;</button>
+      <template v-if="selectedItem.type === 'input'">
+        <h3>入力コンポーネント設定</h3>
+        <div>名前: {{ selectedItem.name }}</div>
+        <!-- ここに入力用の設定UIを追加 -->
+      </template>
+      <template v-else-if="selectedItem.type === 'process'">
+        <h3>処理コンポーネント設定</h3>
+        <div>名前: {{ selectedItem.name }}</div>
+        <!-- ここに処理用の設定UIを追加 -->
+      </template>
+      <template v-else-if="selectedItem.type === 'output'">
+        <h3>出力コンポーネント設定</h3>
+        <div>名前: {{ selectedItem.name }}</div>
+        <!-- ここに出力用の設定UIを追加 -->
+      </template>
     </aside>
   </div>
 </template>
@@ -536,6 +552,9 @@ function getFlowPoint(conn: Connection, progress: number) {
     y: from.y + (to.y - from.y) * progress,
   };
 }
+
+// サイドバー下部パネルの表示/非表示状態
+const selectedItem = ref<DroppedItem | null>(null);
 </script>
 
 
@@ -913,5 +932,21 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+.detail-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  color: #888;
+  cursor: pointer;
+  z-index: 101;
+  padding: 0;
+  line-height: 1;
+}
+.detail-close-btn:hover {
+  color: #d00;
 }
 </style>
